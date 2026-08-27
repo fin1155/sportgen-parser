@@ -156,5 +156,12 @@ review_final <- enrich_final_table(build_final_table(review_article, sd_empty_df
 check_equal("Authoritative review metadata prevents false RCT classification",
             review_final$pub_type[1], "обзор")
 
+app_text <- paste(readLines(file.path(ROOT, "app.R"), warn = FALSE), collapse = "\n")
+check("Web sessions do not write shared result files",
+      grepl("settings = settings, queries = queries, export = FALSE", app_text, fixed = TRUE))
+manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
+check("Connect Cloud manifest targets a supported Shiny runtime",
+      identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))
+
 cat("\nRESULT", passed, "passed;", failed, "failed\n")
 if (failed > 0) quit(status = 1)

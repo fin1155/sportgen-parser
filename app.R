@@ -82,11 +82,9 @@ ui <- page_navbar(
             checkboxInput("fulltext", "Извлекать доступные полные тексты", TRUE),
             passwordInput("elsevier_key", "Elsevier API key", value = "",
                           placeholder = "Хранится только в текущем сеансе"),
-            div(class = "source-note",
-                "Если ScienceDirect Search не разрешён ключу, приложение автоматически использует официальный Scopus API с фильтром издателя Elsevier."),
-            actionButton("run", "Запустить поиск", class = "btn-primary", width = "100%"),
-            br(), br(),
-            actionButton("save_queries", "Сохранить запросы", width = "100%")
+                div(class = "source-note",
+                    "Если ScienceDirect Search не разрешён ключу, приложение автоматически использует официальный Scopus API с фильтром издателя Elsevier."),
+                actionButton("run", "Запустить поиск", class = "btn-primary", width = "100%")
           )
         ),
         column(9,
@@ -154,13 +152,6 @@ server <- function(input, output, session) {
     )
   })
 
-  observeEvent(input$save_queries, {
-    writeLines(input$query_pubmed, file.path(ROOT, "config", "query.txt"), useBytes = TRUE)
-    writeLines(input$query_sciencedirect, file.path(ROOT, "config", "query_sciencedirect.txt"), useBytes = TRUE)
-    writeLines(input$query_openalex, file.path(ROOT, "config", "query_openalex.txt"), useBytes = TRUE)
-    showNotification("Запросы сохранены", type = "message")
-  })
-
   observeEvent(input$run, {
     req(length(input$sources) > 0)
     settings <- load_project_settings()
@@ -186,7 +177,9 @@ server <- function(input, output, session) {
         warnings <- character(0)
         result <- withCallingHandlers(
           run_pipeline(
-            settings = settings, queries = queries, export = TRUE,
+            # Веб-сеансы не пишут в общий out/: каждый пользователь скачивает
+            # собственный reactive-результат через downloadHandler ниже.
+            settings = settings, queries = queries, export = FALSE,
             progress = function(stage, detail) {
               setProgress(value = unname(stages[[stage]] %||% 0), detail = detail)
               append_log(detail)
