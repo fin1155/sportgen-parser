@@ -1,0 +1,163 @@
+# Общие функции и единая схема данных для всех источников.
+
+ARTICLE_COLS <- c(
+  "source_id", "pmid", "title", "authors", "journal", "year", "doi",
+  "abstract", "mesh", "url", "publication_type", "language",
+  "fulltext_url", "is_open_access", "retrieval_method"
+)
+
+`%||%` <- function(a, b) {
+  if (is.null(a)) return(b)
+  if (is.character(a) && length(a) == 1 && (is.na(a) || !nzchar(a))) return(b)
+  if (!is.list(a) && !is.function(a) && length(a) == 1 && is.na(a)) return(b)
+  a
+}
+
+parser_root <- function() {
+  getOption("article_parser.root", getwd())
+}
+
+normalize_space <- function(x) {
+  x <- gsub("[[:space:]]+", " ", as.character(x))
+  trimws(x)
+}
+
+article_empty_df <- function() {
+  values <- setNames(replicate(length(ARTICLE_COLS), character(0), simplify = FALSE),
+                     ARTICLE_COLS)
+  as.data.frame(values, stringsAsFactors = FALSE)
+}
+
+ensure_article_schema <- function(df) {
+  df <- as.data.frame(df, stringsAsFactors = FALSE)
+  for (column in ARTICLE_COLS) {
+    if (!column %in% names(df)) df[[column]] <- rep("", nrow(df))
+    df[[column]] <- as.character(df[[column]])
+    df[[column]][is.na(df[[column]])] <- ""
+  }
+  df[, ARTICLE_COLS, drop = FALSE]
+}
+
+read_query_for <- function(source, settings = NULL) {
+  if (is.null(settings)) {
+    settings <- jsonlite::fromJSON(file.path(parser_root(), "config", "settings.json"),
+                                   simplifyVector = FALSE)
+  }
+  defaults <- c(
+    pubmed = "config/query.txt",
+    sciencedirect = "config/query_sciencedirect.txt",
+    openalex = "config/query_openalex.txt",
+    elibrary = "config/query_openalex.txt"
+  )
+  query_file <- NULL
+  if (!is.null(settings$query_files)) query_file <- settings$query_files[[source]]
+  query_file <- query_file %||% unname(defaults[source]) %||% "config/query.txt"
+  path <- if (grepl("^(/|[A-Za-z]:)", query_file)) {
+    query_file
+  } else {
+    file.path(parser_root(), query_file)
+  }
+  if (!file.exists(path)) {
+    fallback <- file.path(parser_root(), "config", "query.txt")
+    if (!file.exists(fallback)) stop("Файл запроса не найден: ", path)
+    warning("Нет отдельного запроса для ", source, "; используется config/query.txt",
+            call. = FALSE)
+    path <- fallback
+  }
+  normalize_space(paste(readLines(path, warn = FALSE, encoding = "UTF-8"), collapse = " "))
+}
+
+read_secret <- function(settings, legacy_field, env_name) {
+  runtime <- settings$runtime_secrets[[env_name]] %||% ""
+  if (nzchar(runtime)) return(runtime)
+  value <- Sys.getenv(env_name, unset = "")
+  if (nzchar(value)) return(value)
+  legacy <- settings[[legacy_field]] %||% ""
+  if (nzchar(legacy)) {
+    warning("Секрет в settings.json устарел; перенесите его в ", env_name,
+            call. = FALSE)
+  }
+  legacy
+}
+
+normalize_doi <- function(value) {
+  value <- tolower(normalize_space(value %||% ""))
+  value <- sub("^doi:[[:space:]]*", "", value)
+  value <- sub("^https?://(dx\\.)?doi\\.org/", "", value)
+  value <- sub("[?#].*$", "", value)
+  value <- sub("[[:punct:]]+$", "", value)
+  value
+}
+
+normalize_title <- function(value) {
+  value <- tolower(normalize_space(value %||% ""))
+  value <- gsub("[^[:alnum:]а-яё]+", " ", value, perl = TRUE)
+  normalize_space(value)
+}
+
+title_similarity <- function(a, b) {
+  a_tokens <- unique(strsplit(normalize_title(a), " ", fixed = TRUE)[[1]])
+  b_tokens <- unique(strsplit(normalize_title(b), " ", fixed = TRUE)[[1]])
+  a_tokens <- a_tokens[nzchar(a_tokens)]
+  b_tokens <- b_tokens[nzchar(b_tokens)]
+  if (length(a_tokens) == 0 || length(b_tokens) == 0) return(0)
+  length(intersect(a_tokens, b_tokens)) / length(union(a_tokens, b_tokens))
+}
+
+config_limit <- function(value, default = 200L, hard_cap = Inf) {
+  parsed <- suppressWarnings(as.integer(value %||% default))
+  if (is.na(parsed)) parsed <- default
+  if (parsed <= 0) return(hard_cap)
+  min(parsed, hard_cap)
+}
+
+retry_after_seconds <- function(response, default = 2) {
+  value <- suppressWarnings(as.numeric(httr::headers(response)[["retry-after"]] %||% default))
+  if (is.na(value) || value < 0) default else value
+}
+
+strict_topic_match <- function(text) {
+  text <- normalize_space(text %||% "")
+  if (!nzchar(text)) return(FALSE)
+  genetics <- paste(
+    c(
+      "\\brs[0-9]+\\b", "\\bsnp(s)?\\b", "single nucleotide polymorphism",
+      "genetic (variant|variants|polymorphism|polymorphisms)",
+      "\\bgenotype(s)?\\b", "\\bpolymorphism(s)?\\b",
+      "однонуклеотидн(ый|ого|ые|ых) полиморфизм",
+      "генетическ(ий|ого|ие|их) (вариант|варианты|полиморфизм|полиморфизмы)",
+      "\\bгенотип(а|ы|ов)?\\b", "\\bполиморфизм(а|ы|ов)?\\b"
+    ),
+    collapse = "|"
+  )
+  activity <- paste(
+    c(
+      "\\bathlete(s)?\\b", "\\bsport(s|ing)?\\b", "physical activity",
+      "physical performance", "exercise", "endurance", "aerobic performance",
+      "muscle strength", "vo2 ?max", "sedentary behavio(u)?r",
+      "\\bспорт(а|е|ом|ивн|смен)?", "физическ(ая|ой|ую|ие|их) активност",
+      "\\bвыносливост", "\\bупражнен", "\\bтрениров", "мышечн(ая|ой) сил"
+    ),
+    collapse = "|"
+  )
+  grepl(genetics, text, ignore.case = TRUE, perl = TRUE) &&
+    grepl(activity, text, ignore.case = TRUE, perl = TRUE)
+}
+
+load_gene_symbols <- function(settings) {
+  configured <- as.character(settings$gene_candidates %||% character(0))
+  symbols_file <- settings$gene_symbols_file %||% "config/gene_symbols.txt"
+  path <- if (grepl("^(/|[A-Za-z]:)", symbols_file)) {
+    symbols_file
+  } else {
+    file.path(parser_root(), symbols_file)
+  }
+  from_file <- character(0)
+  if (file.exists(path)) {
+    from_file <- trimws(readLines(path, warn = FALSE, encoding = "UTF-8"))
+    from_file <- from_file[nzchar(from_file) & !grepl("^#", from_file)]
+  }
+  symbols <- unique(toupper(c(configured, from_file)))
+  attr(symbols, "always_match") <- unique(toupper(configured))
+  symbols
+}

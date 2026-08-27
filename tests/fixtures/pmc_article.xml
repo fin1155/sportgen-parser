@@ -1,0 +1,25 @@
+<article>
+  <front>
+    <article-meta>
+      <abstract>
+        <p>This systematic review summarizes randomized trials of ACE variants.</p>
+      </abstract>
+    </article-meta>
+  </front>
+  <body>
+    <sec>
+      <title>Methods</title>
+      <p>The sample included N=196 healthy athletes: males (N=143) and females (N=53). Mean age was 42.5 ± 11.4 years.</p>
+      <p>Genotypes deviated from Hardy-Weinberg equilibrium. BMI and smoking were included as covariates.</p>
+    </sec>
+    <sec>
+      <title>Results</title>
+      <p>The ACE effect was beta=-47.7, p=0.01. Bonferroni correction was applied.</p>
+    </sec>
+  </body>
+  <back>
+    <ref-list>
+      <ref><mixed-citation>A different cohort had N=999 and p=0.9.</mixed-citation></ref>
+    </ref-list>
+  </back>
+</article>

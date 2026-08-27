@@ -1,0 +1,14 @@
+name: sportgen-parser
+
+services:
+  sportgen-parser:
+    build: .
+    ports:
+      - "3838:3838"
+    environment:
+      ELSEVIER_API_KEY: ${ELSEVIER_API_KEY:-}
+      NCBI_API_KEY: ${NCBI_API_KEY:-}
+      OPENALEX_API_KEY: ${OPENALEX_API_KEY:-}
+      CROSSREF_MAILTO: ${CROSSREF_MAILTO:-}
+    volumes:
+      - ./out:/app/out

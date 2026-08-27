@@ -1,0 +1,17 @@
+{
+  "resultsFound": 1,
+  "results": [
+    {
+      "authors": [
+        {"order": 0, "name": "Ivan Researcher"},
+        {"order": 1, "name": "Anna Scientist"}
+      ],
+      "doi": "10.1000/v2.example",
+      "pii": "S123456789",
+      "publicationDate": "2025-02-20",
+      "sourceTitle": "Sports Genetics",
+      "title": "PPARGC1A rs8192678 and endurance",
+      "uri": "https://www.sciencedirect.com/science/article/pii/S123456789"
+    }
+  ]
+}

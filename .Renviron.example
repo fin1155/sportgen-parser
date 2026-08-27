@@ -1,0 +1,5 @@
+# Скопируйте нужные строки в личный ~/.Renviron или экспортируйте переменные в shell.
+NCBI_API_KEY=
+ELSEVIER_API_KEY=
+OPENALEX_API_KEY=
+CROSSREF_MAILTO=

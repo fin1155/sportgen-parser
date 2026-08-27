@@ -1,0 +1,17 @@
+{
+  "status": "ok",
+  "message": {
+    "DOI": "10.1000/crossref.1",
+    "title": ["ACE polymorphism in athletes"],
+    "author": [
+      {"given": "Ivan", "family": "Petrov"}
+    ],
+    "container-title": ["Journal of Sports Genetics"],
+    "published-online": {"date-parts": [[2024, 2, 1]]},
+    "abstract": "<jats:p>Genetic variants and physical performance.</jats:p>",
+    "URL": "https://doi.org/10.1000/crossref.1",
+    "type": "journal-article",
+    "publisher": "Example Publisher",
+    "member": "https://id.crossref.org/member/1"
+  }
+}

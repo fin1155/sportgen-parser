@@ -1,0 +1,12 @@
+.DS_Store
+.Rhistory
+.RData
+.Rproj.user/
+.Renviron
+.env
+renv/library/
+renv/staging/
+data/cache/
+*.log
+out/*
+!out/.gitkeep

@@ -1,0 +1,48 @@
+{
+  "query_files": {
+    "pubmed": "config/query.txt",
+    "sciencedirect": "config/query_sciencedirect.txt",
+    "openalex": "config/query_openalex.txt"
+  },
+  "pubmed": {
+    "enabled": true,
+    "max_records": 200,
+    "batch_size": 100,
+    "strict_filter": true,
+    "candidate_multiplier": 5
+  },
+  "sciencedirect": {
+    "enabled": true,
+    "mode": "auto",
+    "max_records": 200
+  },
+  "openalex": {
+    "enabled": true,
+    "max_records": 200,
+    "candidate_multiplier": 5,
+    "pause_sec": 0.12
+  },
+  "crossref": {
+    "enabled": true,
+    "max_lookups": 200,
+    "title_similarity": 0.85,
+    "fetch_abstracts": true,
+    "timeout_sec": 20,
+    "pause_sec": 0.12
+  },
+  "gene_candidates": ["ACE", "ACTN3", "PPARGC1A"],
+  "gene_symbols_file": "config/hgnc_symbols.txt",
+  "pmc": {
+    "enabled": true,
+    "max_records": 50,
+    "pause_sec": 0.35
+  },
+  "fulltext": {
+    "enabled": true,
+    "max_open_records": 50,
+    "timeout_sec": 45,
+    "min_chars": 500,
+    "pause_sec": 0.4
+  },
+  "out_dir": "out"
+}

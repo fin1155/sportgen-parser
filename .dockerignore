@@ -1,0 +1,9 @@
+.git
+.github
+.Rhistory
+.RData
+.Renviron
+.env
+renv/library
+renv/staging
+out/*

@@ -1,0 +1,1 @@
+("single nucleotide polymorphism" OR SNP OR "genetic variant" OR polymorphism OR genotype) AND (athlete OR sport OR "physical performance" OR "exercise performance" OR endurance OR "aerobic performance" OR "muscle strength" OR "sports performance" OR "physical activity" OR exercise OR "sedentary behavior")

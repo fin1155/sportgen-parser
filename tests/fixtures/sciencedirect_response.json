@@ -1,0 +1,26 @@
+{
+  "search-results": {
+    "entry": [
+      {
+        "dc:identifier": "SCIDIR:001",
+        "dc:title": "ACTN3 rs1815739 and athletic performance",
+        "dc:creator": "Ivan Researcher",
+        "prism:publicationName": "Journal of Sports Genetics",
+        "prism:coverDate": "2024-03-01",
+        "prism:doi": "10.1000/example.1",
+        "dc:description": "A study of ACTN3 in athletes.",
+        "prism:url": "https://example.test/article/1"
+      },
+      {
+        "dc:identifier": "SCIDIR:002",
+        "dc:title": "ACE rs4343 in endurance athletes",
+        "dc:creator": "Anna Scientist",
+        "prism:publicationName": "Exercise Genomics",
+        "prism:coverDate": "2023-11-10",
+        "prism:doi": "10.1000/example.2",
+        "dc:description": "A study of ACE in endurance athletes.",
+        "prism:url": "https://example.test/article/2"
+      }
+    ]
+  }
+}
