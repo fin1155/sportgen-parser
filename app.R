@@ -28,6 +28,9 @@ body { font-family:'IBM Plex Sans','Segoe UI',sans-serif; background:var(--paper
 .intro h1 { font-size:clamp(28px,4vw,48px); line-height:1; letter-spacing:-.045em; margin:0 0 8px; }
 .intro p { color:var(--muted); max-width:760px; margin:0; }
 .eyebrow { font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.08em; font-size:12px; color:var(--accent); }
+.usage-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; margin:0 0 18px; border:1px solid var(--line); background:var(--line); }
+.usage-step { background:var(--panel); padding:12px 14px; font-size:14px; }
+.usage-step strong { font-family:'IBM Plex Mono',monospace; color:var(--accent); margin-right:6px; }
 .control-panel,.content-panel,.metric { background:var(--panel); border:1px solid var(--line); border-radius:3px; }
 .control-panel { padding:18px; position:sticky; top:18px; }
 .content-panel { padding:18px; min-height:400px; }
@@ -43,19 +46,46 @@ body { font-family:'IBM Plex Sans','Segoe UI',sans-serif; background:var(--paper
 textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.45; }
 .source-note { border-left:3px solid var(--good); padding:9px 11px; background:#edf5f1; font-size:13px; margin:10px 0 14px; }
 .warning-note { border-left-color:var(--accent); background:#fbede7; }
+.field-help,.query-help { color:var(--muted); font-size:13px; line-height:1.45; }
+.field-help { margin:-8px 0 12px; }
+.query-intro { display:flex; justify-content:space-between; align-items:start; gap:16px; padding:14px; background:#edf5f1; margin-bottom:12px; }
+.query-intro p { margin:0; max-width:760px; }
+.query-editor { border-top:1px solid var(--line); padding:12px 0; }
+.query-editor summary { cursor:pointer; font-weight:600; font-size:16px; }
+.query-editor .query-help { margin:8px 0; }
+.run-status { margin-top:12px; padding:10px 12px; font-size:13px; border:1px solid var(--line); background:#f8f6ef; }
+.run-status.running { background:#fff4d6; border-color:#d9b45d; }
+.run-status.success { background:#edf5f1; border-color:#8fbaaa; }
+.run-status.error { background:#fbede7; border-color:#df9b87; }
 .status-log { background:#102a2d; color:#dce9e5; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:14px; min-height:150px; white-space:pre-wrap; }
 .nav-tabs { border-bottom-color:var(--line); }
 .nav-tabs>li>a { color:var(--ink); border-radius:2px 2px 0 0; }
 .nav-tabs>li.active>a { background:var(--panel); border-color:var(--line); border-bottom-color:var(--panel); }
 .dataTables_wrapper { font-size:12px; }
 table.dataTable thead th { background:var(--ink); color:white; }
-@media(max-width:1000px){ .metric-grid{grid-template-columns:repeat(2,1fr)} .control-panel{position:static} }
+@media(max-width:1000px){ .metric-grid{grid-template-columns:repeat(2,1fr)} .usage-strip{grid-template-columns:1fr} .control-panel{position:static} }
 "
 
 ui <- page_navbar(
   title = "SportGen Parser",
   theme = bs_theme(version = 5, bg = "#f4f1e9", fg = "#102a2d", primary = "#d95d39"),
-  header = tags$head(tags$style(HTML(app_css))),
+  header = tags$head(
+    tags$style(HTML(app_css)),
+    tags$script(HTML("
+      Shiny.addCustomMessageHandler('search-running', function(state) {
+        var button = document.getElementById('run');
+        if (button) {
+          button.disabled = state.running;
+          button.textContent = state.running ? 'Поиск выполняется…' : 'Запустить поиск';
+        }
+        var status = document.querySelector('#run_status .run-status');
+        if (status) {
+          status.className = 'run-status ' + state.kind;
+          status.textContent = state.text;
+        }
+      });
+    "))
+  ),
   nav_panel(
     "Поиск",
     div(class = "app-shell",
@@ -67,24 +97,41 @@ ui <- page_navbar(
         ),
         div(downloadButton("download_csv", "CSV"), downloadButton("download_xlsx", "XLSX"))
       ),
+      div(class = "usage-strip",
+        div(class = "usage-step", strong("1"), "Выберите источники и количество статей"),
+        div(class = "usage-step", strong("2"), "Нажмите «Запустить поиск» и дождитесь завершения"),
+        div(class = "usage-step", strong("3"), "Проверьте результат и скачайте CSV или XLSX")
+      ),
       fluidRow(
         column(3,
           div(class = "control-panel",
             h4("Параметры запуска"),
+            p(class = "field-help", "Для первого запуска ничего изменять не нужно."),
             checkboxGroupInput(
               "sources", "Источники",
               choices = c("PubMed" = "pubmed", "Elsevier" = "sciencedirect",
                           "Русские публикации · OpenAlex" = "openalex"),
               selected = c("pubmed", "sciencedirect", "openalex")
             ),
-            numericInput("max_records", "Максимум на источник (0 = предел API)",
+            numericInput("max_records", "Статей на каждый источник",
                          value = 200, min = 0, step = 25),
+            p(class = "field-help", "200 — обычный запуск. 0 — загрузить максимум, разрешённый источником."),
             checkboxInput("fulltext", "Извлекать доступные полные тексты", TRUE),
-            passwordInput("elsevier_key", "Elsevier API key", value = "",
-                          placeholder = "Хранится только в текущем сеансе"),
-                div(class = "source-note",
-                    "Если ScienceDirect Search не разрешён ключу, приложение автоматически использует официальный Scopus API с фильтром издателя Elsevier."),
-                actionButton("run", "Запустить поиск", class = "btn-primary", width = "100%")
+            p(class = "field-help", "Это улучшает извлечение полей, но увеличивает время обработки."),
+            tags$details(
+              class = "query-editor",
+              tags$summary("Свой ключ Elsevier (необязательно)"),
+              passwordInput("elsevier_key", NULL, value = "",
+                            placeholder = "Оставьте пустым: серверный ключ уже подключён"),
+              p(class = "field-help", "Введённый ключ действует только в текущем сеансе.")
+            ),
+            div(class = "source-note",
+                "Elsevier уже подключён. Если ScienceDirect Search недоступен, используется официальный Scopus API с фильтром Elsevier."),
+            actionButton(
+              "run", "Запустить поиск", class = "btn-primary", width = "100%",
+              onclick = "this.disabled=true; this.textContent='Поиск выполняется…'; var s=document.querySelector('#run_status .run-status'); if(s){s.className='run-status running'; s.textContent='Поиск выполняется. Не закрывайте вкладку; полный запуск может занять несколько минут.';}"
+            ),
+            uiOutput("run_status")
           )
         ),
         column(9,
@@ -92,10 +139,27 @@ ui <- page_navbar(
           div(class = "content-panel",
             navset_tab(
               nav_panel("Результаты", DTOutput("results")),
-              nav_panel("Запросы",
-                textAreaInput("query_pubmed", "PubMed", queries_initial$pubmed, rows = 7, width = "100%"),
-                textAreaInput("query_sciencedirect", "Elsevier", queries_initial$sciencedirect, rows = 7, width = "100%"),
-                textAreaInput("query_openalex", "OpenAlex", queries_initial$openalex, rows = 6, width = "100%")
+              nav_panel("Запросы · необязательно",
+                div(class = "query-intro",
+                  p(tags$strong("Можно ничего не менять."),
+                    " Готовые запросы уже настроены отдельно для каждого источника. Этот раздел нужен только для изменения темы поиска."),
+                  actionButton("reset_queries", "Вернуть исходные", class = "btn-default")
+                ),
+                tags$details(class = "query-editor",
+                  tags$summary("PubMed — английский запрос"),
+                  p(class = "query-help", "Добавляйте или удаляйте термины. AND означает «и», OR означает «или». Не удаляйте внешние скобки."),
+                  textAreaInput("query_pubmed", NULL, queries_initial$pubmed, rows = 7, width = "100%")
+                ),
+                tags$details(class = "query-editor",
+                  tags$summary("Elsevier — английский запрос"),
+                  p(class = "query-help", "Запрос отдельный, потому что синтаксис Elsevier отличается от PubMed."),
+                  textAreaInput("query_sciencedirect", NULL, queries_initial$sciencedirect, rows = 7, width = "100%")
+                ),
+                tags$details(class = "query-editor",
+                  tags$summary("OpenAlex — запрос для русскоязычных публикаций"),
+                  p(class = "query-help", "Используйте русские термины. Результаты дополнительно фильтруются по генетике и физической активности."),
+                  textAreaInput("query_openalex", NULL, queries_initial$openalex, rows = 6, width = "100%")
+                )
               ),
               nav_panel("Журнал", verbatimTextOutput("log", placeholder = TRUE)),
               nav_panel("Ограничения",
@@ -117,13 +181,26 @@ ui <- page_navbar(
 
 server <- function(input, output, session) {
   result_data <- reactiveVal(data.frame())
-  log_lines <- reactiveVal("Приложение готово. Настройте запросы и нажмите «Запустить поиск».")
+  run_state <- reactiveVal(list(kind = "idle", text = "Готово к запуску. Запросы уже настроены."))
+  log_lines <- reactiveVal("Приложение готово. Запросы уже настроены; нажмите «Запустить поиск».")
   append_log <- function(text) {
     stamp <- format(Sys.time(), "%H:%M:%S")
     log_lines(paste(log_lines(), paste0("[", stamp, "] ", text), sep = "\n"))
   }
 
   output$log <- renderText(log_lines())
+
+  output$run_status <- renderUI({
+    state <- run_state()
+    div(class = paste("run-status", state$kind), state$text)
+  })
+
+  observeEvent(input$reset_queries, {
+    updateTextAreaInput(session, "query_pubmed", value = queries_initial$pubmed)
+    updateTextAreaInput(session, "query_sciencedirect", value = queries_initial$sciencedirect)
+    updateTextAreaInput(session, "query_openalex", value = queries_initial$openalex)
+    showNotification("Исходные запросы восстановлены.", type = "message")
+  })
 
   output$metrics <- renderUI({
     df <- result_data()
@@ -150,7 +227,7 @@ server <- function(input, output, session) {
         search = list(regex = FALSE), lengthMenu = c(10, 25, 50, 100)
       )
     )
-  })
+  }, server = FALSE)
 
   observeEvent(input$run, {
     req(length(input$sources) > 0)
@@ -170,6 +247,7 @@ server <- function(input, output, session) {
                     sciencedirect = input$query_sciencedirect,
                     openalex = input$query_openalex)
     log_lines("Запуск начат.")
+    run_state(list(kind = "running", text = "Поиск выполняется. Не закрывайте вкладку; полный запуск может занять несколько минут."))
     stages <- c(pubmed = 0.10, sciencedirect = 0.25, openalex = 0.40, crossref = 0.55,
                 merge = 0.65, fulltext = 0.75, extract = 0.88, export = 0.96, done = 1)
     tryCatch(
@@ -192,10 +270,20 @@ server <- function(input, output, session) {
         )
         if (length(warnings) > 0) for (warning in unique(warnings)) append_log(paste("Предупреждение:", warning))
         result_data(result)
+        run_state(list(kind = "success", text = paste("Готово:", nrow(result), "строк. Таблицу можно проверить и скачать.")))
+        session$sendCustomMessage("search-running", list(
+          running = FALSE, kind = "success",
+          text = paste("Готово:", nrow(result), "строк. Таблицу можно проверить и скачать.")
+        ))
       }),
       error = function(e) {
         append_log(paste("Ошибка:", conditionMessage(e)))
-        showNotification(conditionMessage(e), type = "error", duration = NULL)
+        run_state(list(kind = "error", text = "Поиск не завершён. Подробности записаны во вкладке «Журнал»."))
+        session$sendCustomMessage("search-running", list(
+          running = FALSE, kind = "error",
+          text = "Поиск не завершён. Подробности записаны во вкладке «Журнал»."
+        ))
+        showNotification("Поиск не завершён. Откройте вкладку «Журнал».", type = "error", duration = NULL)
       }
     )
   })

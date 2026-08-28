@@ -169,6 +169,12 @@ check_equal("Authoritative review metadata prevents false RCT classification",
 app_text <- paste(readLines(file.path(ROOT, "app.R"), warn = FALSE), collapse = "\n")
 check("Web sessions do not write shared result files",
       grepl("settings = settings, queries = queries, export = FALSE", app_text, fixed = TRUE))
+check("Results table uses client-side data and cannot time out on a DT Ajax request",
+      grepl("}, server = FALSE)", app_text, fixed = TRUE))
+check("Query editor explains that changes are optional",
+      grepl("Запросы · необязательно", app_text, fixed = TRUE))
+check("Query editor can restore source defaults",
+      grepl("observeEvent(input$reset_queries", app_text, fixed = TRUE))
 manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
 check("Connect Cloud manifest targets a supported Shiny runtime",
       identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))
