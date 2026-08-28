@@ -132,6 +132,8 @@ sd <- make_article("SCIDIR:100", "", "ACE rs1234 in athletes", "ACE rs1234", "10
 combined <- build_final_table(pm, sd, el_empty_df(), settings)
 check_equal("Duplicate DOI is merged", nrow(combined), 1L)
 check("Merged source provenance is retained", grepl("PubMed", combined$source) && grepl("ScienceDirect", combined$source))
+check_equal("Merged provenance counts physical sources once",
+            count_source_labels(c("PubMed; ScienceDirect", "OpenAlex", "PubMed")), 3L)
 check_equal("Integrated SNP extraction", combined$snp[1], "rs1234")
 check_equal("Integrated gene extraction", combined$gene[1], "ACE")
 

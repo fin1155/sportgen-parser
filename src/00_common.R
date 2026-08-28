@@ -38,6 +38,15 @@ ensure_article_schema <- function(df) {
   df[, ARTICLE_COLS, drop = FALSE]
 }
 
+count_source_labels <- function(values) {
+  values <- as.character(values)
+  values <- values[!is.na(values) & nzchar(trimws(values))]
+  if (length(values) == 0) return(0L)
+  labels <- trimws(unlist(strsplit(values, ";", fixed = TRUE), use.names = FALSE))
+  labels <- labels[nzchar(labels)]
+  as.integer(length(unique(labels)))
+}
+
 read_query_for <- function(source, settings = NULL) {
   if (is.null(settings)) {
     settings <- jsonlite::fromJSON(file.path(parser_root(), "config", "settings.json"),

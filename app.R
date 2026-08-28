@@ -127,7 +127,7 @@ server <- function(input, output, session) {
 
   output$metrics <- renderUI({
     df <- result_data()
-    sources <- if (nrow(df) > 0) length(unique(df$source)) else 0
+    sources <- count_source_labels(df$source)
     genes <- if (nrow(df) > 0) sum(nzchar(df$gene)) else 0
     evidence <- if (nrow(df) > 0) sum(nzchar(df$extraction_evidence)) else 0
     div(class = "metric-grid",
