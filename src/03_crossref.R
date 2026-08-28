@@ -16,10 +16,14 @@ crossref_authors <- function(items) {
 
 crossref_year <- function(message) {
   for (field in c("published-print", "published-online", "published", "issued", "created")) {
-    parts <- message[[field]][["date-parts"]] %||% NULL
+    date_value <- message[[field]] %||% NULL
+    if (!is.list(date_value)) next
+    parts <- date_value[["date-parts"]] %||% NULL
     if (!is.null(parts)) {
-      value <- suppressWarnings(as.integer(unlist(parts, recursive = TRUE, use.names = FALSE)[1]))
-      if (!is.na(value) && value >= 1800 && value <= 2200) return(as.character(value))
+      values <- unlist(parts, recursive = TRUE, use.names = FALSE)
+      if (length(values) == 0) next
+      value <- suppressWarnings(as.integer(values[1]))
+      if (isTRUE(!is.na(value) && value >= 1800 && value <= 2200)) return(as.character(value))
     }
   }
   ""

@@ -75,11 +75,19 @@ check_equal("OpenAlex abstract is reconstructed in word order",
 oa_keep <- vapply(paste(oa_rows$title, oa_rows$abstract), strict_topic_match, logical(1))
 check_equal("OpenAlex strict topic filter rejects irrelevant work", unname(oa_keep), c(TRUE, FALSE))
 check_equal("OpenAlex DOI is normalized", oa_rows$doi[1], "10.1000/openalex.1")
+check_equal("Missing HTML body is treated as empty full text",
+            html_body_text("<html><head><title>Empty</title></head></html>"), "")
+check_equal("HTML body text is normalized",
+            html_body_text("<html><body><p> usable   text </p></body></html>"), "usable text")
 
 crossref_path <- file.path(ROOT, "tests", "fixtures", "crossref_work.json")
 crossref_payload <- jsonlite::fromJSON(crossref_path, simplifyVector = FALSE)
 crossref_item <- crossref_record(crossref_payload$message)
 check_equal("Crossref DOI is parsed", crossref_item$doi, "10.1000/crossref.1")
+check_equal("Crossref record without date parts has empty year",
+            crossref_year(list(issued = list(`date-parts` = list()))), "")
+check_equal("Crossref malformed date has empty year",
+            crossref_year(list(issued = "unknown")), "")
 check("Crossref strict title similarity accepts matching title",
       title_similarity("ACE polymorphism in athletes", crossref_item$title) >= 0.85)
 

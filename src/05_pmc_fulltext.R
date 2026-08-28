@@ -142,7 +142,21 @@ open_fulltext_empty_df <- function() {
              stringsAsFactors = FALSE)
 }
 
+html_body_text <- function(text) {
+  text <- scalar_text(text %||% "")
+  if (!nzchar(text)) return("")
+  document <- tryCatch(xml2::read_html(text), error = function(e) NULL)
+  if (is.null(document)) return("")
+  xml2::xml_remove(xml2::xml_find_all(document, ".//script|.//style|.//nav|.//footer|.//header"))
+  body <- xml2::xml_find_first(document, ".//body")
+  if (inherits(body, "xml_missing")) return("")
+  body_text <- xml2::xml_text(body)
+  if (length(body_text) == 0 || is.na(body_text)) return("")
+  normalize_space(body_text)
+}
+
 fetch_open_fulltext <- function(url, timeout_sec = 45) {
+  url <- scalar_text(url %||% "")
   if (!nzchar(url) || !grepl("^https://", url, ignore.case = TRUE)) return("")
   response <- tryCatch(
     httr::GET(
@@ -163,11 +177,7 @@ fetch_open_fulltext <- function(url, timeout_sec = 45) {
     return(normalize_space(paste(pages, collapse = "\n")))
   }
   text <- tryCatch(rawToChar(response$content), error = function(e) "")
-  if (!nzchar(text)) return("")
-  document <- tryCatch(xml2::read_html(text), error = function(e) NULL)
-  if (is.null(document)) return("")
-  xml2::xml_remove(xml2::xml_find_all(document, ".//script|.//style|.//nav|.//footer|.//header"))
-  normalize_space(xml2::xml_text(xml2::xml_find_first(document, ".//body")))
+  html_body_text(text)
 }
 
 load_open_fulltext <- function(df, settings = NULL) {
@@ -190,7 +200,7 @@ load_open_fulltext <- function(df, settings = NULL) {
     text <- fetch_open_fulltext(
       df$fulltext_url[i], timeout_sec = as.numeric(config$timeout_sec %||% 45)
     )
-    if (nchar(text) >= as.integer(config$min_chars %||% 500L)) {
+    if (isTRUE(nchar(text) >= as.integer(config$min_chars %||% 500L))) {
       rows[[j]] <- data.frame(
         doi = normalize_doi(df$doi[i]), source_id = df$source_id[i], fulltext = text,
         stringsAsFactors = FALSE
