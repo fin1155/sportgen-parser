@@ -103,6 +103,13 @@ openalex_search_text <- function(query) {
   query
 }
 
+openalex_filter_with_year <- function(filter, range) {
+  parts <- c(filter)
+  if (!is.na(range$from)) parts <- c(parts, paste0("from_publication_date:", range$from, "-01-01"))
+  if (!is.na(range$to)) parts <- c(parts, paste0("to_publication_date:", range$to, "-12-31"))
+  paste(parts[nzchar(parts)], collapse = ",")
+}
+
 openalex_get <- function(url, retries = 2L) {
   response <- NULL
   for (attempt in seq_len(retries + 1L)) {
@@ -161,6 +168,7 @@ load_openalex <- function(query = NULL, settings = NULL) {
   if (is.null(query)) query <- read_query_for("openalex", settings)
   config <- settings$openalex %||% list()
   if (identical(config$enabled, FALSE)) return(openalex_empty_df())
+  year_range <- publication_year_range(settings, config)
   suppressMessages(library(httr))
   search <- openalex_search_text(query)
   api_key <- read_secret(settings, "openalex_api_key", "OPENALEX_API_KEY")
@@ -170,10 +178,10 @@ load_openalex <- function(query = NULL, settings = NULL) {
   candidate_cap <- min(10000L, max(100L, target * multiplier))
 
   language_rows <- openalex_stream(
-    search, "type:article,language:ru", candidate_cap, config, api_key
+    search, openalex_filter_with_year("type:article,language:ru", year_range), candidate_cap, config, api_key
   )
   affiliation_rows <- openalex_stream(
-    search, "type:article,authorships.institutions.country_code:ru",
+    search, openalex_filter_with_year("type:article,authorships.institutions.country_code:ru", year_range),
     candidate_cap, config, api_key
   )
   all <- ensure_article_schema(rbind(language_rows, affiliation_rows))
@@ -185,6 +193,7 @@ load_openalex <- function(query = NULL, settings = NULL) {
   text <- paste(all$title, all$abstract, all$mesh, sep = " | ")
   keep <- vapply(text, strict_topic_match, logical(1))
   all <- all[keep, , drop = FALSE]
+  all <- filter_publication_year(all, year_range)
   if (nrow(all) > target) all <- utils::head(all, target)
   rownames(all) <- NULL
   attr(all, "total_results") <- sum(

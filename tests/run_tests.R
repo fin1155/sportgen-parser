@@ -33,6 +33,30 @@ check_equal <- function(description, actual, expected) {
   check(description, identical(actual, expected))
 }
 
+check_error <- function(description, expression, pattern) {
+  message <- tryCatch({
+    force(expression)
+    ""
+  }, error = function(error) conditionMessage(error))
+  check(description, nzchar(message) && grepl(pattern, message, fixed = TRUE))
+}
+
+check_equal("Blank publication year disables the filter",
+            publication_year_range(list(publication_year = list(from = "", to = "")))$active,
+            FALSE)
+bounded_years <- publication_year_range(list(publication_year = list(from = "2020", to = "2022")))
+check_equal("Publication year range is inclusive",
+            unname(unlist(bounded_years[c("from", "to")])), c(2020L, 2022L))
+upper_only_years <- publication_year_range(list(publication_year = list(from = "", to = "2022")))
+check_equal("Publication year range accepts only an upper bound",
+            c(is.na(upper_only_years$from), upper_only_years$to), c(1L, 2022L))
+check_error("Publication year must contain four digits",
+            publication_year_range(list(publication_year = list(from = "20", to = ""))),
+            "четырёх цифр")
+check_error("Publication year range rejects reversed bounds",
+            publication_year_range(list(publication_year = list(from = "2022", to = "2020"))),
+            "не может быть позже")
+
 check_equal("SNP extraction and numeric sorting",
             extract_snp("RS1815739, rs2 and rs1815739"), "rs2, rs1815739")
 check_equal("ACE is not found inside placebo/Paced",
@@ -65,6 +89,12 @@ check_equal("ScienceDirect V2 authors are normalized",
             sd_v2$authors[1], "Ivan Researcher; Anna Scientist")
 check_equal("ScienceDirect V2 URI is retained",
             sd_v2$url[1], "https://www.sciencedirect.com/science/article/pii/S123456789")
+check_equal("ScienceDirect receives an inclusive year range",
+            elsevier_date_param(bounded_years), "2020-2022")
+check_equal("ScienceDirect accepts only an upper year bound",
+            elsevier_date_param(upper_only_years), "1800-2022")
+check_equal("Scopus fallback receives inclusive publication-year clauses",
+            scopus_year_clause(bounded_years), "PUBYEAR > 2019 AND PUBYEAR < 2023")
 
 oa_path <- file.path(ROOT, "tests", "fixtures", "openalex_response.json")
 oa_payload <- jsonlite::fromJSON(oa_path, simplifyVector = FALSE)
@@ -75,6 +105,12 @@ check_equal("OpenAlex abstract is reconstructed in word order",
 oa_keep <- vapply(paste(oa_rows$title, oa_rows$abstract), strict_topic_match, logical(1))
 check_equal("OpenAlex strict topic filter rejects irrelevant work", unname(oa_keep), c(TRUE, FALSE))
 check_equal("OpenAlex DOI is normalized", oa_rows$doi[1], "10.1000/openalex.1")
+check_equal("OpenAlex receives publication-date filters",
+            openalex_filter_with_year("type:article", bounded_years),
+            "type:article,from_publication_date:2020-01-01,to_publication_date:2022-12-31")
+check_equal("OpenAlex accepts only an upper publication-date bound",
+            openalex_filter_with_year("type:article", upper_only_years),
+            "type:article,to_publication_date:2022-12-31")
 check_equal("Missing HTML body is treated as empty full text",
             html_body_text("<html><head><title>Empty</title></head></html>"), "")
 check_equal("HTML body text is normalized",
@@ -127,6 +163,23 @@ make_article <- function(source_id, pmid = "", title = "", abstract = "", doi = 
   ensure_article_schema(as.data.frame(row, stringsAsFactors = FALSE))
 }
 
+check_equal("PubMed receives a publication-date filter",
+            pubmed_query_with_year("ACE AND athlete", bounded_years),
+            "(ACE AND athlete) AND 2020:2022[dp]")
+year_rows <- rbind(
+  make_article("Y1", title = "2020 article"),
+  make_article("Y2", title = "2022 article"),
+  make_article("Y3", title = "2023 article"),
+  make_article("Y4", title = "Unknown year")
+)
+year_rows$year <- c("2020", "2022", "2023", "")
+attr(year_rows, "total_results") <- 4L
+filtered_year_rows <- filter_publication_year(year_rows, bounded_years)
+check_equal("Local publication-year safety filter keeps both inclusive bounds",
+            filtered_year_rows$source_id, c("Y1", "Y2"))
+check_equal("Publication-year filtering preserves source metadata",
+            attr(filtered_year_rows, "total_results"), 4L)
+
 pm <- make_article("100", "100", "ACE rs1234 in athletes", "ACE rs1234", "10.1000/duplicate")
 sd <- make_article("SCIDIR:100", "", "ACE rs1234 in athletes", "ACE rs1234", "10.1000/duplicate")
 combined <- build_final_table(pm, sd, el_empty_df(), settings)
@@ -175,6 +228,12 @@ check("Query editor explains that changes are optional",
       grepl("Запросы · необязательно", app_text, fixed = TRUE))
 check("Query editor can restore source defaults",
       grepl("observeEvent(input$reset_queries", app_text, fixed = TRUE))
+year_ui_markers <- c('textInput("year_from"', 'textInput("year_to"',
+                     "Год публикации (необязательно)")
+check("Web interface exposes optional publication-year bounds",
+      all(vapply(year_ui_markers, function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
+check("Web search stores validated publication-year bounds in session settings",
+      grepl("settings$publication_year <- list", app_text, fixed = TRUE))
 manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
 check("Connect Cloud manifest targets a supported Shiny runtime",
       identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))

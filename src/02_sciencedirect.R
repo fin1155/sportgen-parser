@@ -173,7 +173,7 @@ parse_sciencedirect_payload <- function(content) {
   parse_sciencedirect_envelope(content)$data
 }
 
-load_sd_browser <- function(query, settings = NULL) {
+load_sd_browser <- function(query, settings = NULL, year_range = publication_year_range(settings %||% list())) {
   path <- file.path(parser_root(), "data", "sciencedirect_browser.json")
   if (!file.exists(path)) return(sd_empty_df())
   data <- tryCatch(jsonlite::fromJSON(path, simplifyVector = FALSE), error = function(e) NULL)
@@ -183,7 +183,7 @@ load_sd_browser <- function(query, settings = NULL) {
     warning("ScienceDirect: локальный кэш относится к другому запросу", call. = FALSE)
     return(sd_empty_df())
   }
-  norm_sd_records(data$items, "local_cache")
+  filter_publication_year(norm_sd_records(data$items, "local_cache"), year_range)
 }
 
 elsevier_get <- function(url, key, retries = 2L) {
@@ -202,13 +202,31 @@ elsevier_get <- function(url, key, retries = 2L) {
   response
 }
 
-elsevier_put <- function(query, offset, count, key, retries = 2L) {
+elsevier_date_param <- function(range) {
+  if (!isTRUE(range$active)) return("")
+  from <- if (is.na(range$from)) 1800L else range$from
+  to <- if (is.na(range$to)) as.integer(format(Sys.Date(), "%Y")) + 1L else range$to
+  if (identical(from, to)) as.character(from) else paste0(from, "-", to)
+}
+
+scopus_year_clause <- function(range) {
+  if (!isTRUE(range$active)) return("")
+  parts <- character(0)
+  if (!is.na(range$from)) parts <- c(parts, paste("PUBYEAR >", range$from - 1L))
+  if (!is.na(range$to)) parts <- c(parts, paste("PUBYEAR <", range$to + 1L))
+  paste(parts, collapse = " AND ")
+}
+
+elsevier_put <- function(query, offset, count, key, year_range = list(active = FALSE), retries = 2L) {
   response <- NULL
   for (attempt in seq_len(retries + 1L)) {
+    body <- list(qs = query, display = list(offset = offset, show = count, sortBy = "relevance"))
+    date_param <- elsevier_date_param(year_range)
+    if (nzchar(date_param)) body$date <- date_param
     response <- httr::PUT(
       "https://api.elsevier.com/content/search/sciencedirect",
       httr::timeout(30),
-      body = list(qs = query, display = list(offset = offset, show = count, sortBy = "relevance")),
+      body = body,
       encode = "json",
       httr::add_headers(`X-ELS-APIKey` = key),
       httr::accept_json(),
@@ -220,7 +238,7 @@ elsevier_put <- function(query, offset, count, key, retries = 2L) {
   response
 }
 
-load_sciencedirect_api <- function(query, config, key) {
+load_sciencedirect_api <- function(query, config, key, year_range = list(active = FALSE)) {
   limit <- config_limit(config$max_records %||% 200L, default = 200L, hard_cap = 6000L)
   target <- if (is.infinite(limit)) 6000L else as.integer(limit)
   page_size <- 100L
@@ -232,7 +250,7 @@ load_sciencedirect_api <- function(query, config, key) {
 
   while (offset < target && (is.na(total) || offset < total)) {
     count <- min(page_size, target - offset)
-    response <- elsevier_put(query, offset, count, key)
+    response <- elsevier_put(query, offset, count, key, year_range)
     status <- response$status_code
     if (status != 200L) {
       error <- httr::headers(response)[["x-els-status"]] %||%
@@ -254,10 +272,10 @@ load_sciencedirect_api <- function(query, config, key) {
   attr(data, "total_results") <- if (is.na(total)) 0L else total
   attr(data, "http_status") <- status
   attr(data, "api_error") <- error
-  data
+  filter_publication_year(data, year_range)
 }
 
-load_scopus_elsevier_fallback <- function(query, config, key) {
+load_scopus_elsevier_fallback <- function(query, config, key, year_range = list(active = FALSE)) {
   limit <- config_limit(config$max_records %||% 200L, default = 200L, hard_cap = 5000L)
   target <- if (is.infinite(limit)) 5000L else as.integer(limit)
   page_size <- 25L
@@ -265,6 +283,8 @@ load_scopus_elsevier_fallback <- function(query, config, key) {
   total <- NA_integer_
   pages <- list()
   scopus_query <- paste0("TITLE-ABS-KEY(", query, ") AND PUBLISHER(Elsevier)")
+  year_clause <- scopus_year_clause(year_range)
+  if (nzchar(year_clause)) scopus_query <- paste(scopus_query, "AND", year_clause)
 
   while (offset < target && (is.na(total) || offset < total)) {
     count <- min(page_size, target - offset)
@@ -287,7 +307,7 @@ load_scopus_elsevier_fallback <- function(query, config, key) {
   data <- if (length(pages) > 0) ensure_article_schema(do.call(rbind, pages)) else sd_empty_df()
   if (nrow(data) > 0) data <- data[!duplicated(paste(data$source_id, data$doi, data$title)), , drop = FALSE]
   attr(data, "total_results") <- if (is.na(total)) 0L else total
-  data
+  filter_publication_year(data, year_range)
 }
 
 load_sciencedirect <- function(query = NULL, settings = NULL) {
@@ -298,21 +318,22 @@ load_sciencedirect <- function(query = NULL, settings = NULL) {
   if (is.null(query)) query <- read_query_for("sciencedirect", settings)
   config <- settings$sciencedirect %||% list()
   if (identical(config$enabled, FALSE)) return(sd_empty_df())
+  year_range <- publication_year_range(settings, config)
   mode <- tolower(config$mode %||% "auto")
   if (!mode %in% c("auto", "api", "scopus", "cache", "browser")) {
     stop("sciencedirect.mode должен быть auto, api, scopus или cache")
   }
-  if (mode %in% c("cache", "browser")) return(load_sd_browser(query, settings))
+  if (mode %in% c("cache", "browser")) return(load_sd_browser(query, settings, year_range))
 
   suppressMessages(library(httr))
   key <- read_secret(settings, "elsevier_api_key", "ELSEVIER_API_KEY")
   if (!nzchar(key)) {
     warning("Elsevier: задайте ELSEVIER_API_KEY", call. = FALSE)
-    return(load_sd_browser(query, settings))
+    return(load_sd_browser(query, settings, year_range))
   }
 
   if (mode %in% c("auto", "api")) {
-    result <- load_sciencedirect_api(query, config, key)
+    result <- load_sciencedirect_api(query, config, key, year_range)
     if (nrow(result) > 0 || identical(mode, "api")) {
       if (nrow(result) == 0) warning("ScienceDirect API: ", attr(result, "api_error"), call. = FALSE)
       return(result)
@@ -323,8 +344,8 @@ load_sciencedirect <- function(query = NULL, settings = NULL) {
   }
 
   if (mode %in% c("auto", "scopus")) {
-    result <- load_scopus_elsevier_fallback(query, config, key)
+    result <- load_scopus_elsevier_fallback(query, config, key, year_range)
     if (nrow(result) > 0) return(result)
   }
-  load_sd_browser(query, settings)
+  load_sd_browser(query, settings, year_range)
 }

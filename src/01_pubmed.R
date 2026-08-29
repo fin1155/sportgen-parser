@@ -70,6 +70,13 @@ parse_pubmed_batch <- function(content) {
   ensure_article_schema(do.call(rbind, rows))
 }
 
+pubmed_query_with_year <- function(query, range) {
+  if (!isTRUE(range$active)) return(query)
+  from <- if (is.na(range$from)) "1800" else as.character(range$from)
+  to <- if (is.na(range$to)) as.character(as.integer(format(Sys.Date(), "%Y")) + 1L) else as.character(range$to)
+  paste0("(", query, ") AND ", from, ":", to, "[dp]")
+}
+
 load_pubmed <- function(query = NULL, settings = NULL) {
   if (is.null(settings)) {
     settings <- jsonlite::fromJSON(file.path(parser_root(), "config", "settings.json"),
@@ -78,6 +85,8 @@ load_pubmed <- function(query = NULL, settings = NULL) {
   if (is.null(query)) query <- read_query_for("pubmed", settings)
   config <- settings$pubmed %||% list()
   if (identical(config$enabled, FALSE)) return(pubmed_empty_df())
+  year_range <- publication_year_range(settings, config)
+  search_query <- pubmed_query_with_year(query, year_range)
 
   suppressMessages(library(rentrez))
   suppressMessages(library(xml2))
@@ -88,10 +97,10 @@ load_pubmed <- function(query = NULL, settings = NULL) {
   requested <- config$max_records %||% settings$retmax %||% 200
   batch_size <- max(1L, min(as.integer(config$batch_size %||% 100L), 200L))
 
-  search <- rentrez::entrez_search(db = "pubmed", term = query, retmax = 0, use_history = TRUE)
+  search <- rentrez::entrez_search(db = "pubmed", term = search_query, retmax = 0, use_history = TRUE)
   total <- as.integer(search$count %||% 0L)
   if (is.na(total) || total == 0L) {
-    warning("PubMed: 0 результатов для запроса: ", query, call. = FALSE)
+    warning("PubMed: 0 результатов для запроса: ", search_query, call. = FALSE)
     return(pubmed_empty_df())
   }
   limit <- config_limit(requested, default = 200L)
@@ -122,6 +131,7 @@ load_pubmed <- function(query = NULL, settings = NULL) {
       next
     }
     page <- parse_pubmed_batch(payload)
+    page <- filter_publication_year(page, year_range)
     if (strict_filter && nrow(page) > 0) {
       text <- paste(page$title, page$abstract, page$mesh, sep = " | ")
       page <- page[vapply(text, strict_topic_match, logical(1)), , drop = FALSE]

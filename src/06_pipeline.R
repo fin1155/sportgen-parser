@@ -10,7 +10,7 @@ pipeline_queries <- function(settings) {
   )
 }
 
-pipeline_report <- function(final, sources, queries, started_at) {
+pipeline_report <- function(final, sources, queries, started_at, settings = list()) {
   fill_columns <- intersect(c("gene", "snp", ENRICH_COLS), names(final))
   filled <- setNames(lapply(fill_columns, function(column) {
     sum(!is.na(final[[column]]) & nzchar(trimws(as.character(final[[column]]))))
@@ -22,13 +22,18 @@ pipeline_report <- function(final, sources, queries, started_at) {
       retrieval_methods = unique(as.character(df$retrieval_method[nzchar(df$retrieval_method)]))
     )
   })
+  year_range <- publication_year_range(settings)
   list(
     generated_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
     duration_seconds = round(as.numeric(difftime(Sys.time(), started_at, units = "secs")), 2),
     rows = nrow(final),
     sources = source_info,
     filled_fields = filled,
-    queries = queries
+    queries = queries,
+    publication_year = list(
+      from = if (is.na(year_range$from)) "" else year_range$from,
+      to = if (is.na(year_range$to)) "" else year_range$to
+    )
   )
 }
 
@@ -89,7 +94,7 @@ run_pipeline <- function(settings = NULL, queries = NULL, export = TRUE,
   final <- enrich_final_table(final, pmc, open_text)
 
   report <- pipeline_report(final, list(PubMed = pm, Elsevier = sd, OpenAlex = oa),
-                            queries, started_at)
+                            queries, started_at, settings)
   attr(final, "report") <- report
   if (isTRUE(export)) {
     progress("export", "Экспорт CSV и XLSX")

@@ -4,6 +4,10 @@
     "sciencedirect": "config/query_sciencedirect.txt",
     "openalex": "config/query_openalex.txt"
   },
+  "publication_year": {
+    "from": "",
+    "to": ""
+  },
   "pubmed": {
     "enabled": true,
     "max_records": 200,

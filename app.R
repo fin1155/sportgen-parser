@@ -48,6 +48,9 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .warning-note { border-left-color:var(--accent); background:#fbede7; }
 .field-help,.query-help { color:var(--muted); font-size:13px; line-height:1.45; }
 .field-help { margin:-8px 0 12px; }
+.filter-label { font-weight:600; margin:4px 0 8px; }
+.year-range { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.year-range .form-group { margin-bottom:10px; }
 .query-intro { display:flex; justify-content:space-between; align-items:start; gap:16px; padding:14px; background:#edf5f1; margin-bottom:12px; }
 .query-intro p { margin:0; max-width:760px; }
 .query-editor { border-top:1px solid var(--line); padding:12px 0; }
@@ -64,6 +67,7 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .dataTables_wrapper { font-size:12px; }
 table.dataTable thead th { background:var(--ink); color:white; }
 @media(max-width:1000px){ .metric-grid{grid-template-columns:repeat(2,1fr)} .usage-strip{grid-template-columns:1fr} .control-panel{position:static} }
+@media(max-width:540px){ .year-range{grid-template-columns:1fr} }
 "
 
 ui <- page_navbar(
@@ -113,6 +117,12 @@ ui <- page_navbar(
                           "Русские публикации · OpenAlex" = "openalex"),
               selected = c("pubmed", "sciencedirect", "openalex")
             ),
+            div(class = "filter-label", "Год публикации (необязательно)"),
+            div(class = "year-range",
+              textInput("year_from", "С", value = "", placeholder = "например, 2020"),
+              textInput("year_to", "По", value = "", placeholder = "например, 2025")
+            ),
+            p(class = "field-help", "Оставьте оба поля пустыми, чтобы искать за всё время. Можно заполнить только одно поле."),
             numericInput("max_records", "Статей на каждый источник",
                          value = 200, min = 0, step = 25),
             p(class = "field-help", "200 — обычный запуск. 0 — загрузить максимум, разрешённый источником."),
@@ -232,6 +242,25 @@ server <- function(input, output, session) {
   observeEvent(input$run, {
     req(length(input$sources) > 0)
     settings <- load_project_settings()
+    year_range <- tryCatch(
+      publication_year_range(list(publication_year = list(
+        from = input$year_from %||% "", to = input$year_to %||% ""
+      ))),
+      error = function(e) {
+        message <- conditionMessage(e)
+        run_state(list(kind = "error", text = message))
+        session$sendCustomMessage("search-running", list(
+          running = FALSE, kind = "error", text = message
+        ))
+        showNotification(message, type = "error", duration = 8)
+        NULL
+      }
+    )
+    if (is.null(year_range)) return()
+    settings$publication_year <- list(
+      from = if (is.na(year_range$from)) "" else as.character(year_range$from),
+      to = if (is.na(year_range$to)) "" else as.character(year_range$to)
+    )
     if (nzchar(input$elsevier_key)) {
       settings$runtime_secrets <- list(ELSEVIER_API_KEY = input$elsevier_key)
     }
@@ -247,6 +276,14 @@ server <- function(input, output, session) {
                     sciencedirect = input$query_sciencedirect,
                     openalex = input$query_openalex)
     log_lines("Запуск начат.")
+    if (isTRUE(year_range$active)) {
+      append_log(paste0(
+        "Диапазон публикации: ",
+        if (is.na(year_range$from)) "без нижней границы" else year_range$from,
+        " — ",
+        if (is.na(year_range$to)) "без верхней границы" else year_range$to
+      ))
+    }
     run_state(list(kind = "running", text = "Поиск выполняется. Не закрывайте вкладку; полный запуск может занять несколько минут."))
     stages <- c(pubmed = 0.10, sciencedirect = 0.25, openalex = 0.40, crossref = 0.55,
                 merge = 0.65, fulltext = 0.75, extract = 0.88, export = 0.96, done = 1)

@@ -54,6 +54,20 @@ if (nrow(openalex) > 0) {
              all(vapply(oa_text, strict_topic_match, logical(1))))
 }
 
+date_settings <- settings
+date_settings$publication_year <- list(from = "2020", to = "2024")
+date_settings$pubmed$max_records <- 2L
+date_settings$openalex$max_records <- 2L
+date_settings$sciencedirect$max_records <- 2L
+dated_pubmed <- load_pubmed(queries$pubmed, date_settings)
+check_live("PubMed applies the requested publication-year range",
+           nrow(dated_pubmed) > 0 && all(as.integer(dated_pubmed$year) >= 2020L &
+                                          as.integer(dated_pubmed$year) <= 2024L))
+dated_openalex <- load_openalex(queries$openalex, date_settings)
+check_live("OpenAlex applies the requested publication-year range",
+           nrow(dated_openalex) > 0 && all(as.integer(dated_openalex$year) >= 2020L &
+                                            as.integer(dated_openalex$year) <= 2024L))
+
 crossref <- crossref_by_doi("10.1038/s41586-020-2649-2", settings$crossref)
 check_live("Crossref resolves a known DOI",
            !is.null(crossref) && identical(crossref$doi, "10.1038/s41586-020-2649-2"))
@@ -79,6 +93,10 @@ if (nzchar(Sys.getenv("ELSEVIER_API_KEY", unset = ""))) {
     check_live("Elsevier reports its retrieval route",
                all(elsevier$retrieval_method %in% c("sciencedirect_api", "scopus_elsevier_fallback")))
   }
+  dated_elsevier <- load_sciencedirect(queries$sciencedirect, date_settings)
+  check_live("Elsevier applies the requested publication-year range",
+             nrow(dated_elsevier) > 0 && all(as.integer(dated_elsevier$year) >= 2020L &
+                                               as.integer(dated_elsevier$year) <= 2024L))
 } else {
   skip_live("Elsevier live API", "ELSEVIER_API_KEY is not set")
 }

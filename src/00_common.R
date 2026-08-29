@@ -120,6 +120,45 @@ config_limit <- function(value, default = 200L, hard_cap = Inf) {
   min(parsed, hard_cap)
 }
 
+normalize_publication_year <- function(value, label = "Год") {
+  if (is.null(value) || length(value) == 0 || all(is.na(value))) return(NA_integer_)
+  text <- trimws(as.character(value[1]))
+  if (!nzchar(text)) return(NA_integer_)
+  if (!grepl("^[0-9]{4}$", text)) stop(label, " должен состоять из четырёх цифр")
+  year <- suppressWarnings(as.integer(text))
+  max_year <- as.integer(format(Sys.Date(), "%Y")) + 1L
+  if (is.na(year) || year < 1800L || year > max_year) {
+    stop(label, " должен быть от 1800 до ", max_year)
+  }
+  year
+}
+
+publication_year_range <- function(settings = list(), config = list()) {
+  global <- settings$publication_year %||% list()
+  from <- normalize_publication_year(config$year_from %||% global$from %||% "", "Год «с»")
+  to <- normalize_publication_year(config$year_to %||% global$to %||% "", "Год «по»")
+  if (!is.na(from) && !is.na(to) && from > to) {
+    stop("Год «с» не может быть позже года «по»")
+  }
+  list(from = from, to = to, active = !is.na(from) || !is.na(to))
+}
+
+filter_publication_year <- function(df, range) {
+  source_attributes <- attributes(df)[setdiff(names(attributes(df)), c("names", "row.names", "class"))]
+  df <- ensure_article_schema(df)
+  if (nrow(df) == 0 || !isTRUE(range$active)) return(df)
+  years <- suppressWarnings(as.integer(df$year))
+  keep <- !is.na(years)
+  if (!is.na(range$from)) keep <- keep & years >= range$from
+  if (!is.na(range$to)) keep <- keep & years <= range$to
+  result <- df[keep, , drop = FALSE]
+  rownames(result) <- NULL
+  for (attribute_name in names(source_attributes)) {
+    attr(result, attribute_name) <- source_attributes[[attribute_name]]
+  }
+  result
+}
+
 retry_after_seconds <- function(response, default = 2) {
   value <- suppressWarnings(as.numeric(httr::headers(response)[["retry-after"]] %||% default))
   if (is.na(value) || value < 0) default else value
