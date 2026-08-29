@@ -51,6 +51,13 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .filter-label { font-weight:600; margin:4px 0 8px; }
 .year-range { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .year-range .form-group { margin-bottom:10px; }
+.column-config { max-width:980px; }
+.column-config h4 { margin:2px 0 8px; }
+.column-presets { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 16px; }
+.column-presets .btn { margin:0; }
+.column-summary { color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px; margin:8px 0 0; }
+.column-config .selectize-input { min-height:94px; max-height:220px; overflow-y:auto; padding:8px; }
+.column-config .selectize-control.multi .selectize-input > div { background:#edf5f1; border:1px solid #b8cec5; border-radius:2px; color:var(--ink); }
 .query-intro { display:flex; justify-content:space-between; align-items:start; gap:16px; padding:14px; background:#edf5f1; margin-bottom:12px; }
 .query-intro p { margin:0; max-width:760px; }
 .query-editor { border-top:1px solid var(--line); padding:12px 0; }
@@ -149,6 +156,26 @@ ui <- page_navbar(
           div(class = "content-panel",
             navset_tab(
               nav_panel("Результаты", DTOutput("results")),
+              nav_panel("Столбцы",
+                div(class = "column-config",
+                  h4("Настройка таблицы и экспорта"),
+                  p(class = "query-help",
+                    "Выберите нужные поля. Порядок плашек совпадает с порядком столбцов; плашки можно перетаскивать. CSV и XLSX используют этот же набор."),
+                  div(class = "column-presets",
+                    actionButton("columns_core", "Основные", class = "btn-default"),
+                    actionButton("columns_genetics", "Генетика и результаты", class = "btn-default"),
+                    actionButton("columns_all", "Все поля", class = "btn-default")
+                  ),
+                  selectizeInput(
+                    "table_columns", "Показываемые столбцы и их порядок",
+                    choices = setNames(names(TABLE_COLUMN_LABELS), unname(TABLE_COLUMN_LABELS)),
+                    selected = TABLE_COLUMN_PRESETS$all, multiple = TRUE,
+                    options = list(plugins = list("remove_button", "drag_drop"),
+                                   placeholder = "Начните вводить название столбца")
+                  ),
+                  uiOutput("column_summary")
+                )
+              ),
               nav_panel("Запросы · необязательно",
                 div(class = "query-intro",
                   p(tags$strong("Можно ничего не менять."),
@@ -193,6 +220,7 @@ server <- function(input, output, session) {
   result_data <- reactiveVal(data.frame())
   run_state <- reactiveVal(list(kind = "idle", text = "Готово к запуску. Запросы уже настроены."))
   log_lines <- reactiveVal("Приложение готово. Запросы уже настроены; нажмите «Запустить поиск».")
+  empty_columns_reset <- reactiveVal(FALSE)
   append_log <- function(text) {
     stamp <- format(Sys.time(), "%H:%M:%S")
     log_lines(paste(log_lines(), paste0("[", stamp, "] ", text), sep = "\n"))
@@ -204,6 +232,52 @@ server <- function(input, output, session) {
     state <- run_state()
     div(class = paste("run-status", state$kind), state$text)
   })
+
+  selected_columns <- reactive({
+    requested <- input$table_columns
+    if (is.null(requested)) return(TABLE_COLUMN_PRESETS$core)
+    valid <- unique(as.character(requested))
+    valid <- valid[valid %in% names(TABLE_COLUMN_LABELS)]
+    if (length(valid) == 0) TABLE_COLUMN_PRESETS$core else valid
+  })
+
+  visible_result_data <- reactive({
+    df <- result_data()
+    if (ncol(df) == 0) return(df)
+    select_output_columns(df, selected_columns())
+  })
+
+  output$column_summary <- renderUI({
+    count <- length(selected_columns())
+    p(class = "column-summary", paste("Выбрано столбцов:", count, "из", length(TABLE_COLUMN_LABELS)))
+  })
+
+  apply_column_preset <- function(columns, label) {
+    updateSelectizeInput(session, "table_columns", selected = columns, server = FALSE)
+    showNotification(paste("Выбран набор:", label), type = "message", duration = 3)
+  }
+
+  observeEvent(input$columns_core, {
+    apply_column_preset(TABLE_COLUMN_PRESETS$core, "Основные")
+  })
+  observeEvent(input$columns_genetics, {
+    apply_column_preset(TABLE_COLUMN_PRESETS$genetics, "Генетика и результаты")
+  })
+  observeEvent(input$columns_all, {
+    apply_column_preset(TABLE_COLUMN_PRESETS$all, "Все поля")
+  })
+  observeEvent(input$table_columns, {
+    is_empty <- length(input$table_columns %||% character(0)) == 0
+    if (is_empty && !isTRUE(empty_columns_reset())) {
+      empty_columns_reset(TRUE)
+      updateSelectizeInput(session, "table_columns", selected = TABLE_COLUMN_PRESETS$core,
+                           server = FALSE)
+      showNotification("В таблице должен остаться хотя бы один столбец. Восстановлен набор «Основные».",
+                       type = "warning", duration = 5)
+    } else if (!is_empty) {
+      empty_columns_reset(FALSE)
+    }
+  }, ignoreInit = TRUE, ignoreNULL = FALSE)
 
   observeEvent(input$reset_queries, {
     updateTextAreaInput(session, "query_pubmed", value = queries_initial$pubmed)
@@ -226,14 +300,14 @@ server <- function(input, output, session) {
   })
 
   output$results <- renderDT({
-    df <- result_data()
+    df <- visible_result_data()
     if (nrow(df) == 0) return(datatable(data.frame(Статус = "Результатов пока нет"), options = list(dom = "t")))
     datatable(
       df, filter = "top", rownames = FALSE, escape = TRUE,
       extensions = c("Scroller", "FixedColumns"),
       options = list(
         pageLength = 25, scrollX = TRUE, scrollY = 620, deferRender = TRUE,
-        scroller = TRUE, fixedColumns = list(leftColumns = 3),
+        scroller = TRUE, fixedColumns = list(leftColumns = min(3L, ncol(df))),
         search = list(regex = FALSE), lengthMenu = c(10, 25, 50, 100)
       )
     )
@@ -327,11 +401,11 @@ server <- function(input, output, session) {
 
   output$download_csv <- downloadHandler(
     filename = function() paste0("sportgen_articles_", Sys.Date(), ".csv"),
-    content = function(file) readr::write_csv(result_data(), file)
+    content = function(file) readr::write_csv(visible_result_data(), file)
   )
   output$download_xlsx <- downloadHandler(
     filename = function() paste0("sportgen_articles_", Sys.Date(), ".xlsx"),
-    content = function(file) openxlsx::write.xlsx(result_data(), file, overwrite = TRUE)
+    content = function(file) openxlsx::write.xlsx(visible_result_data(), file, overwrite = TRUE)
   )
 }
 

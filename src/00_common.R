@@ -6,6 +6,66 @@ ARTICLE_COLS <- c(
   "fulltext_url", "is_open_access", "retrieval_method"
 )
 
+TABLE_COLUMN_LABELS <- c(
+  source = "Источник",
+  source_id = "ID источника",
+  pmid = "PMID",
+  title = "Название статьи",
+  authors = "Авторы",
+  journal = "Журнал",
+  year = "Год публикации",
+  doi = "DOI",
+  abstract = "Аннотация",
+  mesh = "MeSH и темы",
+  url = "Ссылка на статью",
+  publication_type = "Тип публикации (метаданные)",
+  language = "Язык",
+  fulltext_url = "Ссылка на полный текст",
+  is_open_access = "Открытый доступ",
+  retrieval_method = "Способ получения",
+  gene = "Исследованный ген",
+  snp = "SNP (rsID)",
+  pub_type = "Тип исследования",
+  inherit_model = "Модель наследования",
+  allele_freq = "Частота аллелей",
+  hwe = "Равновесие Харди–Вайнберга",
+  sample_type = "Тип выборки",
+  ethnicity = "Этническая принадлежность",
+  sample_size = "Размер выборки",
+  sex = "Пол (M/F)",
+  age = "Возраст",
+  pa_level = "Уровень физической активности",
+  phenotype = "Исследуемый фенотип",
+  measure_method = "Метод измерения фенотипа",
+  covariates = "Ковариаты",
+  results = "Основные результаты",
+  effect_dir = "Направление эффекта",
+  effect_size = "Размер эффекта",
+  p_adj = "Статистическая значимость",
+  gene_env = "Взаимодействие ген × среда",
+  multipletest = "Поправка на множественное тестирование",
+  power = "Мощность исследования",
+  data_avail = "Доступность данных",
+  extraction_confidence = "Уверенность извлечения",
+  extraction_evidence = "Фрагмент-основание"
+)
+
+TABLE_COLUMN_PRESETS <- list(
+  core = c(
+    "source", "pmid", "title", "authors", "journal", "year", "doi", "url",
+    "gene", "snp", "pub_type", "results", "extraction_confidence"
+  ),
+  genetics = c(
+    "source", "title", "year", "doi", "gene", "snp", "pub_type",
+    "inherit_model", "allele_freq", "hwe", "sample_type", "ethnicity",
+    "sample_size", "sex", "age", "pa_level", "phenotype", "measure_method",
+    "covariates", "results", "effect_dir", "effect_size", "p_adj", "gene_env",
+    "multipletest", "power", "data_avail", "extraction_confidence",
+    "extraction_evidence"
+  ),
+  all = names(TABLE_COLUMN_LABELS)
+)
+
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (is.character(a) && length(a) == 1 && (is.na(a) || !nzchar(a))) return(b)
@@ -45,6 +105,17 @@ count_source_labels <- function(values) {
   labels <- trimws(unlist(strsplit(values, ";", fixed = TRUE), use.names = FALSE))
   labels <- labels[nzchar(labels)]
   as.integer(length(unique(labels)))
+}
+
+select_output_columns <- function(df, selected, fallback = TABLE_COLUMN_PRESETS$core) {
+  df <- as.data.frame(df, stringsAsFactors = FALSE)
+  selected <- unique(as.character(selected %||% character(0)))
+  selected <- selected[selected %in% names(df)]
+  if (length(selected) == 0) {
+    selected <- fallback[fallback %in% names(df)]
+  }
+  if (length(selected) == 0 && ncol(df) > 0) selected <- names(df)[1]
+  df[, selected, drop = FALSE]
 }
 
 read_query_for <- function(source, settings = NULL) {

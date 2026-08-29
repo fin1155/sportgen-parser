@@ -57,6 +57,27 @@ check_error("Publication year range rejects reversed bounds",
             publication_year_range(list(publication_year = list(from = "2022", to = "2020"))),
             "не может быть позже")
 
+expected_table_columns <- c(
+  "source", ARTICLE_COLS, "gene", "snp", ENRICH_COLS,
+  "extraction_confidence", "extraction_evidence"
+)
+check_equal("Column customizer covers every exported field",
+            names(TABLE_COLUMN_LABELS), expected_table_columns)
+check_equal("All-fields preset preserves the complete export order",
+            TABLE_COLUMN_PRESETS$all, expected_table_columns)
+column_fixture <- data.frame(
+  source = "PubMed", title = "ACE in athletes", year = "2024", doi = "10.1000/test",
+  stringsAsFactors = FALSE
+)
+check_equal("Selected columns keep the user's requested order",
+            names(select_output_columns(column_fixture, c("year", "title", "source"))),
+            c("year", "title", "source"))
+check_equal("Unknown column names are ignored safely",
+            names(select_output_columns(column_fixture, c("doi", "not_a_column"))), "doi")
+check_equal("Empty selection falls back to useful available fields",
+            names(select_output_columns(column_fixture, character(0))),
+            c("source", "title", "year", "doi"))
+
 check_equal("SNP extraction and numeric sorting",
             extract_snp("RS1815739, rs2 and rs1815739"), "rs2, rs1815739")
 check_equal("ACE is not found inside placebo/Paced",
@@ -234,6 +255,19 @@ check("Web interface exposes optional publication-year bounds",
       all(vapply(year_ui_markers, function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
 check("Web search stores validated publication-year bounds in session settings",
       grepl("settings$publication_year <- list", app_text, fixed = TRUE))
+column_ui_markers <- c(
+  'nav_panel("Столбцы"', 'actionButton("columns_core"',
+  'actionButton("columns_genetics"', 'actionButton("columns_all"', 'selectizeInput('
+)
+check("Web interface exposes the column customizer and presets",
+      all(vapply(column_ui_markers,
+                 function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
+check("Results table and both downloads use the selected columns",
+      length(gregexpr("visible_result_data()", app_text, fixed = TRUE)[[1]]) >= 3)
+check("Column order can be changed by dragging selected fields",
+      grepl('plugins = list("remove_button", "drag_drop")', app_text, fixed = TRUE))
+check("Removing every field restores the core preset",
+      grepl("ignoreInit = TRUE, ignoreNULL = FALSE", app_text, fixed = TRUE))
 manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
 check("Connect Cloud manifest targets a supported Shiny runtime",
       identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))
