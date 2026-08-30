@@ -80,10 +80,15 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .nav-tabs { border-bottom-color:var(--line); }
 .content-panel .tabbable { min-width:0; }
 .content-panel .tab-content { min-width:0; overflow-x:auto; }
+.result-help { color:var(--muted); font-size:13px; margin:10px 0 12px; }
 .nav-tabs>li>a { color:var(--ink); border-radius:2px 2px 0 0; }
 .nav-tabs>li.active>a { background:var(--panel); border-color:var(--line); border-bottom-color:var(--panel); }
 .dataTables_wrapper { font-size:12px; }
 table.dataTable thead th { background:var(--ink); color:white; }
+.article-link { color:var(--good); font-weight:600; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; }
+.article-link:hover,.article-link:focus { color:var(--accent); }
+.article-title-link { display:inline-block; min-width:180px; max-width:520px; }
+.article-open-link { white-space:nowrap; }
 @media(max-width:1100px){
   .workspace-row{grid-template-columns:1fr}
   .control-panel{position:static}
@@ -191,7 +196,11 @@ ui <- page_navbar(
           uiOutput("metrics"),
           div(class = "content-panel",
             navset_tab(
-              nav_panel("Результаты", DTOutput("results")),
+              nav_panel("Результаты",
+                p(class = "result-help",
+                  "Нажмите на название статьи, PMID, DOI или «Открыть статью ↗», чтобы перейти к публикации в новой вкладке."),
+                DTOutput("results")
+              ),
               nav_panel("Столбцы",
                 div(class = "column-config",
                   h4("Настройка таблицы и экспорта"),
@@ -290,7 +299,8 @@ server <- function(input, output, session) {
 
   apply_column_preset <- function(columns, label) {
     updateSelectizeInput(session, "table_columns", selected = columns, server = FALSE)
-    showNotification(paste("Выбран набор:", label), type = "message", duration = 3)
+    showNotification(paste("Выбран набор:", label), type = "message", duration = 3,
+                     id = "column-preset")
   }
 
   observeEvent(input$columns_core, {
@@ -338,8 +348,10 @@ server <- function(input, output, session) {
   output$results <- renderDT({
     df <- visible_result_data()
     if (nrow(df) == 0) return(datatable(data.frame(Статус = "Результатов пока нет"), options = list(dom = "t")))
+    display <- prepare_table_display(df)
+    escape_columns <- setdiff(seq_along(display$data), display$link_columns)
     datatable(
-      df, filter = "top", rownames = FALSE, escape = TRUE,
+      display$data, filter = "top", rownames = FALSE, escape = escape_columns,
       extensions = c("Scroller", "FixedColumns"),
       options = list(
         pageLength = 25, scrollX = TRUE, scrollY = 620, deferRender = TRUE,

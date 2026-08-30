@@ -77,6 +77,37 @@ check_equal("Unknown column names are ignored safely",
 check_equal("Empty selection falls back to useful available fields",
             names(select_output_columns(column_fixture, character(0))),
             c("source", "title", "year", "doi"))
+check_equal("Direct article URL is preferred for navigation",
+            article_destination("https://example.org/article", "10.1000/fallback", "123"),
+            "https://example.org/article")
+check_equal("DOI provides a navigation fallback",
+            article_destination(doi = "10.1000/example"),
+            "https://doi.org/10.1000/example")
+check_equal("PMID provides a navigation fallback",
+            article_destination(pmid = "123456"),
+            "https://pubmed.ncbi.nlm.nih.gov/123456/")
+check_equal("Unsafe URL schemes are rejected",
+            article_destination(url = "javascript:alert(1)"), "")
+link_fixture <- data.frame(
+  pmid = "123456", title = "<b>ACE study</b>", doi = "10.1000/example",
+  url = "https://example.org/article?a=1&b=2",
+  fulltext_url = "https://example.org/article/fulltext", stringsAsFactors = FALSE
+)
+link_display <- prepare_table_display(link_fixture)
+check("Article title becomes a safe one-click external link",
+      grepl('target="_blank"', link_display$data$title, fixed = TRUE) &&
+        grepl('rel="noopener noreferrer"', link_display$data$title, fixed = TRUE) &&
+        grepl("&lt;b&gt;ACE study&lt;/b&gt;", link_display$data$title, fixed = TRUE))
+check("Identifiers, title and article URLs are marked as links",
+      setequal(names(link_display$data)[link_display$link_columns],
+               c("pmid", "title", "doi", "url", "fulltext_url")))
+unsafe_link_display <- prepare_table_display(data.frame(
+  title = "<script>alert(1)</script>", url = "javascript:alert(1)",
+  stringsAsFactors = FALSE
+))
+check("Unsafe article links remain escaped plain text",
+      !grepl("<a ", unsafe_link_display$data$title, fixed = TRUE) &&
+        grepl("&lt;script&gt;", unsafe_link_display$data$title, fixed = TRUE))
 
 check_equal("SNP extraction and numeric sorting",
             extract_snp("RS1815739, rs2 and rs1815739"), "rs2, rs1815739")
@@ -268,6 +299,12 @@ check("Column order can be changed by dragging selected fields",
       grepl('plugins = list("remove_button", "drag_drop")', app_text, fixed = TRUE))
 check("Removing every field restores the core preset",
       grepl("ignoreInit = TRUE, ignoreNULL = FALSE", app_text, fixed = TRUE))
+check("Results table renders safe one-click article links",
+      grepl("display <- prepare_table_display(df)", app_text, fixed = TRUE) &&
+        grepl("escape = escape_columns", app_text, fixed = TRUE) &&
+        grepl("Нажмите на название статьи", app_text, fixed = TRUE))
+check("Column preset notifications replace each other instead of stacking",
+      grepl('id = "column-preset"', app_text, fixed = TRUE))
 responsive_ui_markers <- c(
   ".workspace-row { display:grid",
   ".year-range .shiny-input-container,.year-range .form-control { width:100%!important",

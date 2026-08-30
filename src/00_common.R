@@ -118,6 +118,109 @@ select_output_columns <- function(df, selected, fallback = TABLE_COLUMN_PRESETS$
   df[, selected, drop = FALSE]
 }
 
+safe_http_url <- function(value) {
+  value <- trimws(as.character(value %||% ""))
+  if (length(value) == 0 || is.na(value[1]) || !nzchar(value[1])) return("")
+  value <- value[1]
+  if (!grepl("^https?://[^[:space:]]+$", value, ignore.case = TRUE, perl = TRUE)) return("")
+  value
+}
+
+article_destination <- function(url = "", doi = "", pmid = "") {
+  direct <- safe_http_url(url)
+  if (nzchar(direct)) return(direct)
+
+  doi <- normalize_doi(doi)
+  if (grepl("^10\\.[0-9]{4,9}/[^[:space:]]+$", doi, perl = TRUE)) {
+    return(paste0("https://doi.org/", doi))
+  }
+
+  pmid <- trimws(as.character(pmid %||% ""))[1]
+  if (!is.na(pmid) && grepl("^[0-9]+$", pmid)) {
+    return(paste0("https://pubmed.ncbi.nlm.nih.gov/", pmid, "/"))
+  }
+  ""
+}
+
+safe_external_link <- function(label, url, fallback = label, class_name = "article-link") {
+  url <- safe_http_url(url)
+  label <- as.character(label %||% "")[1]
+  fallback <- as.character(fallback %||% "")[1]
+  if (is.na(label)) label <- ""
+  if (is.na(fallback)) fallback <- ""
+  if (!nzchar(label) || !nzchar(url)) return(htmltools::htmlEscape(fallback))
+  sprintf(
+    '<a class="%s" href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+    htmltools::htmlEscape(class_name, attribute = TRUE),
+    htmltools::htmlEscape(url, attribute = TRUE),
+    htmltools::htmlEscape(label)
+  )
+}
+
+prepare_table_display <- function(df) {
+  df <- as.data.frame(df, stringsAsFactors = FALSE)
+  if (nrow(df) == 0) return(list(data = df, link_columns = integer(0)))
+
+  values <- function(name) {
+    if (name %in% names(df)) as.character(df[[name]]) else rep("", nrow(df))
+  }
+  destinations <- mapply(
+    article_destination,
+    values("url"), values("doi"), values("pmid"),
+    USE.NAMES = FALSE
+  )
+  link_names <- character(0)
+
+  if ("title" %in% names(df)) {
+    df$title <- mapply(
+      safe_external_link, values("title"), destinations, values("title"),
+      MoreArgs = list(class_name = "article-link article-title-link"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "title")
+  }
+  if ("url" %in% names(df)) {
+    df$url <- mapply(
+      safe_external_link, rep("Открыть статью ↗", nrow(df)), destinations, values("url"),
+      MoreArgs = list(class_name = "article-link article-open-link"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "url")
+  }
+  if ("fulltext_url" %in% names(df)) {
+    fulltext_values <- values("fulltext_url")
+    df$fulltext_url <- mapply(
+      safe_external_link,
+      rep("Открыть полный текст ↗", nrow(df)), fulltext_values, fulltext_values,
+      MoreArgs = list(class_name = "article-link article-open-link"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "fulltext_url")
+  }
+  if ("doi" %in% names(df)) {
+    doi_values <- values("doi")
+    doi_urls <- vapply(doi_values, function(value) article_destination(doi = value), character(1))
+    df$doi <- mapply(
+      safe_external_link, doi_values, doi_urls, doi_values,
+      MoreArgs = list(class_name = "article-link article-id-link"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "doi")
+  }
+  if ("pmid" %in% names(df)) {
+    pmid_values <- values("pmid")
+    pmid_urls <- vapply(pmid_values, function(value) article_destination(pmid = value), character(1))
+    df$pmid <- mapply(
+      safe_external_link, pmid_values, pmid_urls, pmid_values,
+      MoreArgs = list(class_name = "article-link article-id-link"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "pmid")
+  }
+
+  list(data = df, link_columns = match(intersect(link_names, names(df)), names(df)))
+}
+
 read_query_for <- function(source, settings = NULL) {
   if (is.null(settings)) {
     settings <- jsonlite::fromJSON(file.path(parser_root(), "config", "settings.json"),
