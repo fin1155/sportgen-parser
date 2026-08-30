@@ -83,11 +83,15 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .result-help { color:var(--muted); font-size:13px; margin:10px 0 12px; }
 .nav-tabs>li>a { color:var(--ink); border-radius:2px 2px 0 0; }
 .nav-tabs>li.active>a { background:var(--panel); border-color:var(--line); border-bottom-color:var(--panel); }
-.dataTables_wrapper { font-size:12px; }
-table.dataTable thead th { background:var(--ink); color:white; }
+.dataTables_wrapper { width:100%; max-width:100%; font-size:12px; }
+.dataTables_wrapper .dataTables_scroll { max-width:100%; }
+.dataTables_wrapper .dataTables_scrollBody { overflow:auto!important; }
+table.dataTable { width:100%!important; }
+table.dataTable thead th { background:var(--ink); color:white; white-space:nowrap; }
+table.dataTable tbody td { max-width:360px; vertical-align:top; white-space:normal!important; overflow-wrap:anywhere; word-break:normal; }
 .article-link { color:var(--good); font-weight:600; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; }
 .article-link:hover,.article-link:focus { color:var(--accent); }
-.article-title-link { display:inline-block; min-width:180px; max-width:520px; }
+.article-title-link { display:block; min-width:240px; max-width:480px; white-space:normal!important; overflow-wrap:anywhere; }
 .article-open-link { white-space:nowrap; }
 @media(max-width:1100px){
   .workspace-row{grid-template-columns:1fr}
@@ -352,10 +356,10 @@ server <- function(input, output, session) {
     escape_columns <- setdiff(seq_along(display$data), display$link_columns)
     datatable(
       display$data, filter = "top", rownames = FALSE, escape = escape_columns,
-      extensions = c("Scroller", "FixedColumns"),
+      extensions = "Scroller",
       options = list(
         pageLength = 25, scrollX = TRUE, scrollY = 620, deferRender = TRUE,
-        scroller = TRUE, fixedColumns = list(leftColumns = min(3L, ncol(df))),
+        scroller = TRUE, scrollCollapse = TRUE,
         search = list(regex = FALSE), lengthMenu = c(10, 25, 50, 100)
       )
     )

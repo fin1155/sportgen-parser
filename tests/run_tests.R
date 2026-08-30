@@ -303,6 +303,11 @@ check("Results table renders safe one-click article links",
       grepl("display <- prepare_table_display(df)", app_text, fixed = TRUE) &&
         grepl("escape = escape_columns", app_text, fixed = TRUE) &&
         grepl("Нажмите на название статьи", app_text, fixed = TRUE))
+check("Long table values wrap inside their cells without fixed-column overlays",
+      grepl("table.dataTable tbody td { max-width:360px", app_text, fixed = TRUE) &&
+        grepl("white-space:normal!important", app_text, fixed = TRUE) &&
+        !grepl('extensions = c("Scroller", "FixedColumns")', app_text, fixed = TRUE) &&
+        !grepl("fixedColumns = list", app_text, fixed = TRUE))
 check("Column preset notifications replace each other instead of stacking",
       grepl('id = "column-preset"', app_text, fixed = TRUE))
 responsive_ui_markers <- c(
