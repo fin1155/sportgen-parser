@@ -268,6 +268,16 @@ check("Column order can be changed by dragging selected fields",
       grepl('plugins = list("remove_button", "drag_drop")', app_text, fixed = TRUE))
 check("Removing every field restores the core preset",
       grepl("ignoreInit = TRUE, ignoreNULL = FALSE", app_text, fixed = TRUE))
+responsive_ui_markers <- c(
+  ".workspace-row { display:grid",
+  ".year-range .shiny-input-container,.year-range .form-control { width:100%!important",
+  "@media(max-width:1100px)",
+  ".workspace-row{grid-template-columns:1fr}",
+  "html,body { max-width:100%; overflow-x:hidden; }"
+)
+check("Web layout prevents fixed-width inputs and columns from overflowing",
+      all(vapply(responsive_ui_markers,
+                 function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
 manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
 check("Connect Cloud manifest targets a supported Shiny runtime",
       identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))

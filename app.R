@@ -20,20 +20,28 @@ queries_initial <- pipeline_queries(settings_initial)
 app_css <- "
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 :root { --ink:#102a2d; --paper:#f4f1e9; --panel:#fffdf7; --line:#d9d3c5; --accent:#d95d39; --good:#227c65; --muted:#6a716f; }
+html,body { max-width:100%; overflow-x:hidden; }
 body { font-family:'IBM Plex Sans','Segoe UI',sans-serif; background:var(--paper); color:var(--ink); }
 .navbar { background:var(--ink)!important; border:0; box-shadow:none; }
 .navbar-brand { font-weight:700; letter-spacing:-.02em; }
-.app-shell { max-width:1600px; margin:0 auto; padding:22px 22px 44px; }
+.app-shell,.app-shell *,.app-shell *::before,.app-shell *::after { box-sizing:border-box; }
+.app-shell { width:100%; max-width:1480px; margin:0 auto; padding:22px 22px 44px; }
 .intro { display:flex; justify-content:space-between; gap:20px; align-items:end; margin-bottom:18px; }
+.intro-copy { min-width:0; }
 .intro h1 { font-size:clamp(28px,4vw,48px); line-height:1; letter-spacing:-.045em; margin:0 0 8px; }
 .intro p { color:var(--muted); max-width:760px; margin:0; }
+.export-actions { display:flex; flex:0 0 auto; gap:8px; }
+.export-actions .btn { min-width:104px; margin:0; white-space:nowrap; }
 .eyebrow { font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.08em; font-size:12px; color:var(--accent); }
 .usage-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; margin:0 0 18px; border:1px solid var(--line); background:var(--line); }
-.usage-step { background:var(--panel); padding:12px 14px; font-size:14px; }
+.usage-step { min-width:0; overflow-wrap:anywhere; background:var(--panel); padding:12px 14px; font-size:14px; }
 .usage-step strong { font-family:'IBM Plex Mono',monospace; color:var(--accent); margin-right:6px; }
+.workspace-row { display:grid; grid-template-columns:minmax(280px,320px) minmax(0,1fr); gap:18px; margin:0; }
+.workspace-row::before,.workspace-row::after { display:none; }
+.workspace-row > .sidebar-column,.workspace-row > .main-column { float:none; width:auto; min-width:0; padding:0; }
 .control-panel,.content-panel,.metric { background:var(--panel); border:1px solid var(--line); border-radius:3px; }
 .control-panel { padding:18px; position:sticky; top:18px; }
-.content-panel { padding:18px; min-height:400px; }
+.content-panel { min-width:0; padding:18px; min-height:400px; overflow:hidden; }
 .metric-grid { display:grid; grid-template-columns:repeat(4,minmax(150px,1fr)); gap:10px; margin-bottom:12px; }
 .metric { padding:14px; }
 .metric strong { display:block; font-size:26px; line-height:1; margin-bottom:7px; }
@@ -49,8 +57,9 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .field-help,.query-help { color:var(--muted); font-size:13px; line-height:1.45; }
 .field-help { margin:-8px 0 12px; }
 .filter-label { font-weight:600; margin:4px 0 8px; }
-.year-range { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.year-range { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
 .year-range .form-group { margin-bottom:10px; }
+.year-range .shiny-input-container,.year-range .form-control { width:100%!important; min-width:0; }
 .column-config { max-width:980px; }
 .column-config h4 { margin:2px 0 8px; }
 .column-presets { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 16px; }
@@ -69,12 +78,37 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .run-status.error { background:#fbede7; border-color:#df9b87; }
 .status-log { background:#102a2d; color:#dce9e5; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:14px; min-height:150px; white-space:pre-wrap; }
 .nav-tabs { border-bottom-color:var(--line); }
+.content-panel .tabbable { min-width:0; }
+.content-panel .tab-content { min-width:0; overflow-x:auto; }
 .nav-tabs>li>a { color:var(--ink); border-radius:2px 2px 0 0; }
 .nav-tabs>li.active>a { background:var(--panel); border-color:var(--line); border-bottom-color:var(--panel); }
 .dataTables_wrapper { font-size:12px; }
 table.dataTable thead th { background:var(--ink); color:white; }
-@media(max-width:1000px){ .metric-grid{grid-template-columns:repeat(2,1fr)} .usage-strip{grid-template-columns:1fr} .control-panel{position:static} }
-@media(max-width:540px){ .year-range{grid-template-columns:1fr} }
+@media(max-width:1100px){
+  .workspace-row{grid-template-columns:1fr}
+  .control-panel{position:static}
+  .control-panel .year-range{max-width:520px}
+}
+@media(max-width:900px){
+  .app-shell{padding:18px 16px 36px}
+  .intro{align-items:flex-start; flex-direction:column}
+  .export-actions{width:100%}
+  .export-actions .btn{flex:1 1 0}
+  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .usage-strip{grid-template-columns:1fr}
+  .nav-tabs{display:flex; flex-wrap:wrap}
+  .nav-tabs>li{float:none}
+}
+@media(max-width:540px){
+  .app-shell{padding:14px 12px 28px}
+  .intro h1{font-size:34px}
+  .export-actions{flex-direction:column}
+  .year-range{grid-template-columns:1fr}
+  .metric-grid{grid-template-columns:1fr 1fr}
+  .control-panel,.content-panel{padding:14px}
+  .column-presets{display:grid; grid-template-columns:1fr}
+  .column-presets .btn{width:100%}
+}
 "
 
 ui <- page_navbar(
@@ -101,20 +135,22 @@ ui <- page_navbar(
     "Поиск",
     div(class = "app-shell",
       div(class = "intro",
-        div(
+        div(class = "intro-copy",
           div(class = "eyebrow", "Литературный поиск · спортивная генетика"),
           h1("Из запроса — в проверяемую таблицу"),
           p("PubMed, Elsevier и русскоязычные публикации OpenAlex. Каждое извлечённое поле сопровождается уверенностью и фрагментом-основанием.")
         ),
-        div(downloadButton("download_csv", "CSV"), downloadButton("download_xlsx", "XLSX"))
+        div(class = "export-actions",
+            downloadButton("download_csv", "CSV"),
+            downloadButton("download_xlsx", "XLSX"))
       ),
       div(class = "usage-strip",
         div(class = "usage-step", strong("1"), "Выберите источники и количество статей"),
         div(class = "usage-step", strong("2"), "Нажмите «Запустить поиск» и дождитесь завершения"),
         div(class = "usage-step", strong("3"), "Проверьте результат и скачайте CSV или XLSX")
       ),
-      fluidRow(
-        column(3,
+      fluidRow(class = "workspace-row",
+        column(3, class = "sidebar-column",
           div(class = "control-panel",
             h4("Параметры запуска"),
             p(class = "field-help", "Для первого запуска ничего изменять не нужно."),
@@ -126,8 +162,8 @@ ui <- page_navbar(
             ),
             div(class = "filter-label", "Год публикации (необязательно)"),
             div(class = "year-range",
-              textInput("year_from", "С", value = "", placeholder = "например, 2020"),
-              textInput("year_to", "По", value = "", placeholder = "например, 2025")
+              textInput("year_from", "С", value = "", placeholder = "2020"),
+              textInput("year_to", "По", value = "", placeholder = "2025")
             ),
             p(class = "field-help", "Оставьте оба поля пустыми, чтобы искать за всё время. Можно заполнить только одно поле."),
             numericInput("max_records", "Статей на каждый источник",
@@ -151,7 +187,7 @@ ui <- page_navbar(
             uiOutput("run_status")
           )
         ),
-        column(9,
+        column(9, class = "main-column",
           uiOutput("metrics"),
           div(class = "content-panel",
             navset_tab(
