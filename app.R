@@ -25,7 +25,7 @@ body { font-family:'IBM Plex Sans','Segoe UI',sans-serif; background:var(--paper
 .navbar { background:var(--ink)!important; border:0; box-shadow:none; }
 .navbar-brand { font-weight:700; letter-spacing:-.02em; }
 .app-shell,.app-shell *,.app-shell *::before,.app-shell *::after { box-sizing:border-box; }
-.app-shell { width:100%; max-width:1480px; margin:0 auto; padding:22px 22px 44px; }
+.app-shell { width:100%; max-width:none; margin:0 auto; padding:18px 18px 40px; }
 .intro { display:flex; justify-content:space-between; gap:20px; align-items:end; margin-bottom:18px; }
 .intro-copy { min-width:0; }
 .intro h1 { font-size:clamp(28px,4vw,48px); line-height:1; letter-spacing:-.045em; margin:0 0 8px; }
@@ -36,12 +36,12 @@ body { font-family:'IBM Plex Sans','Segoe UI',sans-serif; background:var(--paper
 .usage-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; margin:0 0 18px; border:1px solid var(--line); background:var(--line); }
 .usage-step { min-width:0; overflow-wrap:anywhere; background:var(--panel); padding:12px 14px; font-size:14px; }
 .usage-step strong { font-family:'IBM Plex Mono',monospace; color:var(--accent); margin-right:6px; }
-.workspace-row { display:grid; grid-template-columns:minmax(280px,320px) minmax(0,1fr); gap:18px; margin:0; }
+.workspace-row { display:grid; grid-template-columns:minmax(260px,290px) minmax(0,1fr); gap:16px; margin:0; }
 .workspace-row::before,.workspace-row::after { display:none; }
 .workspace-row > .sidebar-column,.workspace-row > .main-column { float:none; width:auto; min-width:0; padding:0; }
 .control-panel,.content-panel,.metric { background:var(--panel); border:1px solid var(--line); border-radius:3px; }
 .control-panel { padding:18px; position:sticky; top:18px; }
-.content-panel { min-width:0; padding:18px; min-height:400px; overflow:hidden; }
+.content-panel { min-width:0; padding:14px; min-height:calc(100vh - 310px); overflow:hidden; }
 .metric-grid { display:grid; grid-template-columns:repeat(4,minmax(150px,1fr)); gap:10px; margin-bottom:12px; }
 .metric { padding:14px; }
 .metric strong { display:block; font-size:26px; line-height:1; margin-bottom:7px; }
@@ -83,7 +83,7 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .result-help { color:var(--muted); font-size:13px; margin:10px 0 12px; }
 .nav-tabs>li>a { color:var(--ink); border-radius:2px 2px 0 0; }
 .nav-tabs>li.active>a { background:var(--panel); border-color:var(--line); border-bottom-color:var(--panel); }
-.dataTables_wrapper { width:100%; max-width:100%; font-size:12px; }
+.dataTables_wrapper { width:100%; max-width:100%; font-size:13px; }
 .dataTables_wrapper .dataTables_scroll { max-width:100%; }
 .dataTables_wrapper .dataTables_scrollBody { overflow:auto!important; }
 table.dataTable { width:100%!important; }
@@ -91,8 +91,17 @@ table.dataTable thead th { background:var(--ink); color:white; white-space:nowra
 table.dataTable tbody td { max-width:360px; vertical-align:top; white-space:normal!important; overflow-wrap:anywhere; word-break:normal; }
 .article-link { color:var(--good); font-weight:600; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; }
 .article-link:hover,.article-link:focus { color:var(--accent); }
-.article-title-link { display:block; min-width:240px; max-width:480px; white-space:normal!important; overflow-wrap:anywhere; }
+.article-title-link { display:block; min-width:300px; max-width:520px; white-space:normal!important; overflow-wrap:anywhere; }
+.article-id-link { white-space:nowrap; }
 .article-open-link { white-space:nowrap; }
+.expandable-cell { line-height:1.45; }
+.expandable-cell-authors { min-width:230px; max-width:340px; }
+.expandable-cell-abstract { min-width:340px; max-width:540px; }
+.cell-preview,.cell-full { display:block; }
+.cell-preview[hidden],.cell-full[hidden] { display:none!important; }
+.cell-expand-button { display:inline-flex; align-items:center; min-height:30px; margin:6px 0 0; padding:0; border:0; background:transparent; color:var(--good); font:600 12px/1.2 'IBM Plex Sans','Segoe UI',sans-serif; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+.cell-expand-button:hover,.cell-expand-button:focus { color:var(--accent); outline:none; }
+.cell-expand-button:focus-visible { outline:2px solid var(--good); outline-offset:2px; }
 @media(max-width:1100px){
   .workspace-row{grid-template-columns:1fr}
   .control-panel{position:static}
@@ -137,6 +146,19 @@ ui <- page_navbar(
           status.className = 'run-status ' + state.kind;
           status.textContent = state.text;
         }
+      });
+      document.addEventListener('click', function(event) {
+        var button = event.target.closest('.cell-expand-button');
+        if (!button) return;
+        var cell = button.closest('.expandable-cell');
+        if (!cell) return;
+        var preview = cell.querySelector('.cell-preview');
+        var full = cell.querySelector('.cell-full');
+        var expanded = button.getAttribute('aria-expanded') === 'true';
+        button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        button.textContent = expanded ? 'Показать полностью' : 'Свернуть';
+        if (preview) preview.hidden = !expanded;
+        if (full) full.hidden = expanded;
       });
     "))
   ),
@@ -355,11 +377,11 @@ server <- function(input, output, session) {
     display <- prepare_table_display(df)
     escape_columns <- setdiff(seq_along(display$data), display$link_columns)
     datatable(
-      display$data, filter = "top", rownames = FALSE, escape = escape_columns,
-      extensions = "Scroller",
+      display$data, filter = "top", rownames = FALSE, selection = "none",
+      escape = escape_columns,
       options = list(
-        pageLength = 25, scrollX = TRUE, scrollY = 620, deferRender = TRUE,
-        scroller = TRUE, scrollCollapse = TRUE,
+        pageLength = 25, scrollX = TRUE, scrollY = "65vh", deferRender = TRUE,
+        scrollCollapse = TRUE,
         search = list(regex = FALSE), lengthMenu = c(10, 25, 50, 100)
       )
     )

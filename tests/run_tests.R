@@ -91,7 +91,10 @@ check_equal("Unsafe URL schemes are rejected",
 link_fixture <- data.frame(
   pmid = "123456", title = "<b>ACE study</b>", doi = "10.1000/example",
   url = "https://example.org/article?a=1&b=2",
-  fulltext_url = "https://example.org/article/fulltext", stringsAsFactors = FALSE
+  fulltext_url = "https://example.org/article/fulltext",
+  authors = "Alice One; Bob Two; Carol Three; Dana Four",
+  abstract = paste(rep("A long abstract sentence with useful research details.", 8), collapse = " "),
+  stringsAsFactors = FALSE
 )
 link_display <- prepare_table_display(link_fixture)
 check("Article title becomes a safe one-click external link",
@@ -100,7 +103,18 @@ check("Article title becomes a safe one-click external link",
         grepl("&lt;b&gt;ACE study&lt;/b&gt;", link_display$data$title, fixed = TRUE))
 check("Identifiers, title and article URLs are marked as links",
       setequal(names(link_display$data)[link_display$link_columns],
-               c("pmid", "title", "doi", "url", "fulltext_url")))
+               c("pmid", "title", "doi", "url", "fulltext_url", "authors", "abstract")))
+check("Long authors and abstracts are collapsed behind a show-full button",
+      grepl("Alice One; Bob Two; Carol Three; …", link_display$data$authors, fixed = TRUE) &&
+        grepl("Dana Four", link_display$data$authors, fixed = TRUE) &&
+        grepl("Показать полностью", link_display$data$authors, fixed = TRUE) &&
+        grepl("Показать полностью", link_display$data$abstract, fixed = TRUE))
+short_display <- prepare_table_display(data.frame(
+  authors = "Alice One; Bob Two", abstract = "Short abstract.", stringsAsFactors = FALSE
+))
+check("Short authors and abstracts stay visible without an unnecessary button",
+      !grepl("Показать полностью", short_display$data$authors, fixed = TRUE) &&
+        !grepl("Показать полностью", short_display$data$abstract, fixed = TRUE))
 unsafe_link_display <- prepare_table_display(data.frame(
   title = "<script>alert(1)</script>", url = "javascript:alert(1)",
   stringsAsFactors = FALSE
@@ -308,6 +322,16 @@ check("Long table values wrap inside their cells without fixed-column overlays",
         grepl("white-space:normal!important", app_text, fixed = TRUE) &&
         !grepl('extensions = c("Scroller", "FixedColumns")', app_text, fixed = TRUE) &&
         !grepl("fixedColumns = list", app_text, fixed = TRUE))
+check("Authors and abstracts expand on demand in the results table",
+      grepl(".cell-expand-button", app_text, fixed = TRUE) &&
+        grepl("Показать полностью", app_text, fixed = TRUE) &&
+        grepl("button.textContent = expanded ? 'Показать полностью' : 'Свернуть'", app_text, fixed = TRUE))
+check("Expandable text buttons do not select the entire result row",
+      grepl('selection = "none"', app_text, fixed = TRUE))
+check("Results workspace uses the available viewport width and height",
+      grepl(".app-shell { width:100%; max-width:none", app_text, fixed = TRUE) &&
+        grepl('scrollY = "65vh"', app_text, fixed = TRUE) &&
+        !grepl('extensions = "Scroller"', app_text, fixed = TRUE))
 check("Column preset notifications replace each other instead of stacking",
       grepl('id = "column-preset"', app_text, fixed = TRUE))
 responsive_ui_markers <- c(

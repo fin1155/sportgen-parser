@@ -157,6 +157,45 @@ safe_external_link <- function(label, url, fallback = label, class_name = "artic
   )
 }
 
+truncate_display_text <- function(value, max_chars = 260L) {
+  value <- trimws(as.character(value %||% "")[1])
+  if (is.na(value) || !nzchar(value) || nchar(value, type = "chars") <= max_chars) return(value)
+  preview <- substr(value, 1L, max_chars)
+  preview <- sub("[[:space:]]+[^[:space:]]*$", "", preview, perl = TRUE)
+  if (!nzchar(preview)) preview <- substr(value, 1L, max_chars)
+  paste0(trimws(preview), "…")
+}
+
+authors_display_preview <- function(value, max_authors = 3L) {
+  value <- trimws(as.character(value %||% "")[1])
+  if (is.na(value) || !nzchar(value)) return("")
+  authors <- trimws(strsplit(value, ";", fixed = TRUE)[[1]])
+  authors <- authors[nzchar(authors)]
+  if (length(authors) <= max_authors) return(value)
+  paste0(paste(head(authors, max_authors), collapse = "; "), "; …")
+}
+
+safe_expandable_cell <- function(value, preview, class_name) {
+  value <- trimws(as.character(value %||% "")[1])
+  preview <- trimws(as.character(preview %||% "")[1])
+  if (is.na(value) || !nzchar(value)) return("")
+  if (is.na(preview) || !nzchar(preview) || identical(preview, value)) {
+    return(htmltools::htmlEscape(value))
+  }
+  sprintf(
+    paste0(
+      '<div class="expandable-cell %s">',
+      '<span class="cell-preview">%s</span>',
+      '<span class="cell-full" hidden>%s</span>',
+      '<button type="button" class="cell-expand-button" aria-expanded="false">Показать полностью</button>',
+      '</div>'
+    ),
+    htmltools::htmlEscape(class_name, attribute = TRUE),
+    htmltools::htmlEscape(preview),
+    htmltools::htmlEscape(value)
+  )
+}
+
 prepare_table_display <- function(df) {
   df <- as.data.frame(df, stringsAsFactors = FALSE)
   if (nrow(df) == 0) return(list(data = df, link_columns = integer(0)))
@@ -170,6 +209,27 @@ prepare_table_display <- function(df) {
     USE.NAMES = FALSE
   )
   link_names <- character(0)
+
+  if ("authors" %in% names(df)) {
+    author_values <- values("authors")
+    author_previews <- vapply(author_values, authors_display_preview, character(1))
+    df$authors <- mapply(
+      safe_expandable_cell, author_values, author_previews,
+      MoreArgs = list(class_name = "expandable-cell-authors"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "authors")
+  }
+  if ("abstract" %in% names(df)) {
+    abstract_values <- values("abstract")
+    abstract_previews <- vapply(abstract_values, truncate_display_text, character(1))
+    df$abstract <- mapply(
+      safe_expandable_cell, abstract_values, abstract_previews,
+      MoreArgs = list(class_name = "expandable-cell-abstract"),
+      USE.NAMES = FALSE
+    )
+    link_names <- c(link_names, "abstract")
+  }
 
   if ("title" %in% names(df)) {
     df$title <- mapply(
