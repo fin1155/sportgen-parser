@@ -1,0 +1,14 @@
+2026-09-05, Posit Connect Cloud, functional commit 561c8fa
+PASS: GitHub Actions 33979164489: macOS, Windows, Ubuntu, Docker
+PASS: Posit history #13: Successfully published, matching source commit
+PASS: browser search: 6 records, 2 per source, fulltext enabled
+PASS: PubMed retrieved, Elsevier Scopus fallback retrieved, OpenAlex retrieved; source errors empty
+PASS: PMC and OpenAlex-linked full text present
+PASS: CSV and XLSX: 6 rows, matching 13 selected columns; XLSX 4 sheets
+PASS: JSON download and parser roundtrip: 6 articles, 6 documents
+PASS: browser JSON upload: Archive opened, 6 articles
+PASS: browser offline re-extraction
+PASS: browser field confirmation and undo restored original evidence
+PASS: no browser JavaScript errors
+NOTE: first search reported libraries built under R 4.6.1 while server R is 4.6.0
+VISUAL: assistant inspected screenshots; no external automated vision pass claimed
