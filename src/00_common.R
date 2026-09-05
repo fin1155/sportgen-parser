@@ -46,7 +46,17 @@ TABLE_COLUMN_LABELS <- c(
   multipletest = "Поправка на множественное тестирование",
   power = "Мощность исследования",
   data_avail = "Доступность данных",
-  extraction_confidence = "Уверенность извлечения",
+  study_period = "Год / период исследования",
+  sample_groups = "Выборка по группам",
+  sport = "Вид спорта",
+  effect_allele = "Эффектный аллель и связь с исходом",
+  data_links = "Ссылки на данные",
+  article_id = "ID объединённой статьи",
+  text_source = "Основание извлечения",
+  missing_fields = "Поля без подтверждения",
+  evidence_profile = "Оценка доказательств (предварительная)",
+  evidence_reasons = "Обоснование оценки",
+  extraction_confidence = "Статус проверки",
   extraction_evidence = "Фрагмент-основание"
 )
 
@@ -59,7 +69,7 @@ TABLE_COLUMN_PRESETS <- list(
     "source", "title", "year", "doi", "gene", "snp", "pub_type",
     "inherit_model", "allele_freq", "hwe", "sample_type", "ethnicity",
     "sample_size", "sex", "age", "pa_level", "phenotype", "measure_method",
-    "covariates", "results", "effect_dir", "effect_size", "p_adj", "gene_env",
+    "covariates", "results", "effect_dir", "effect_size", "study_period", "sample_groups", "sport", "effect_allele", "data_links", "p_adj", "gene_env",
     "multipletest", "power", "data_avail", "extraction_confidence",
     "extraction_evidence"
   ),
@@ -403,7 +413,9 @@ strict_topic_match <- function(text) {
   if (!nzchar(text)) return(FALSE)
   genetics <- paste(
     c(
-      "\\brs[0-9]+\\b", "\\bsnp(s)?\\b", "single nucleotide polymorphism",
+      "\\brs[0-9]+\\b", "\\bsnp(s)?\\b", "single[- ]nucleotide polymorphism",
+      "\\bgenetic(s|ally)?\\b", "\\bgenomic(s)?\\b", "\\bgenotyp(ing|ed)\\b",
+      "\\bACTN-?3\\b.{0,25}R577X", "\\bACE\\b.{0,15}I/D", "генетическ",
       "genetic (variant|variants|polymorphism|polymorphisms)",
       "\\bgenotype(s)?\\b", "\\bpolymorphism(s)?\\b",
       "однонуклеотидн(ый|ого|ые|ых) полиморфизм",
@@ -414,7 +426,8 @@ strict_topic_match <- function(text) {
   )
   activity <- paste(
     c(
-      "\\bathlete(s)?\\b", "\\bsport(s|ing)?\\b", "physical activity",
+      "\\bathlet(e|es|ic|ics)\\b", "\\bsport(s|ing)?\\b", "physical activity",
+      "\\b(football|soccer|volleyball|basketball|gymnastics|swimming|sprinting|rowing)\\b",
       "physical performance", "exercise", "endurance", "aerobic performance",
       "muscle strength", "vo2 ?max", "sedentary behavio(u)?r",
       "\\bспорт(а|е|ом|ивн|смен)?", "физическ(ая|ой|ую|ие|их) активност",

@@ -1,0 +1,167 @@
+PASS Blank publication year disables the filter
+PASS Publication year range is inclusive
+PASS Publication year range accepts only an upper bound
+PASS Publication year must contain four digits
+PASS Publication year range rejects reversed bounds
+PASS Column customizer covers every exported field
+PASS All-fields preset preserves the complete export order
+PASS Selected columns keep the user's requested order
+PASS Unknown column names are ignored safely
+PASS Empty selection falls back to useful available fields
+PASS Direct article URL is preferred for navigation
+PASS DOI provides a navigation fallback
+PASS PMID provides a navigation fallback
+PASS Unsafe URL schemes are rejected
+PASS Article title becomes a safe one-click external link
+PASS Identifiers, title and article URLs are marked as links
+PASS Long authors and abstracts are collapsed behind a show-full button
+PASS Short authors and abstracts stay visible without an unnecessary button
+PASS Unsafe article links remain escaped plain text
+PASS SNP extraction and numeric sorting
+PASS ACE is not found inside placebo/Paced
+PASS Exact HGNC symbols are found
+PASS Session secret takes precedence without touching the environment
+PASS Full HGNC dictionary is loaded
+PASS Common uppercase words are rejected without genetic context
+PASS HGNC symbol near rsID is accepted
+PASS ScienceDirect list payload keeps both records
+PASS ScienceDirect DOI normalization
+PASS ScienceDirect data.frame payload keeps both records
+PASS ScienceDirect V2 payload is parsed
+PASS ScienceDirect V2 authors are normalized
+PASS ScienceDirect V2 URI is retained
+PASS ScienceDirect receives an inclusive year range
+PASS ScienceDirect accepts only an upper year bound
+PASS Scopus fallback receives inclusive publication-year clauses
+PASS OpenAlex fixture produces two records
+PASS OpenAlex abstract is reconstructed in word order
+PASS OpenAlex strict topic filter rejects irrelevant work
+PASS OpenAlex DOI is normalized
+PASS OpenAlex receives publication-date filters
+PASS OpenAlex accepts only an upper publication-date bound
+PASS Missing HTML body is treated as empty full text
+PASS HTML body text is normalized
+PASS Crossref DOI is parsed
+PASS Crossref record without date parts has empty year
+PASS Crossref malformed date has empty year
+PASS Crossref strict title similarity accepts matching title
+PASS PMC parser excludes bibliography
+PASS Systematic review is not classified as RCT
+PASS Sample size extraction
+PASS Sex extraction
+PASS Mean age extraction
+PASS HWE violation is distinguished
+PASS Results come from Results section
+PASS Extraction does not claim a calibrated probability
+PASS HWE quality-control exclusion is not reported as a sample violation
+PASS Alternative sample-size wording
+PASS Alternative sex wording
+PASS Sample size allows demographic descriptors
+PASS Unicode scientific p-value is normalized
+PASS PubMed receives a publication-date filter
+PASS Local publication-year safety filter keeps both inclusive bounds
+PASS Publication-year filtering preserves source metadata
+PASS Duplicate DOI is merged
+PASS Merged source provenance is retained
+PASS Merged provenance counts physical sources once
+PASS Integrated SNP extraction
+PASS Integrated gene extraction
+PASS Only PubMed-linked row is enriched
+PASS Evidence is exported as JSON
+PASS Rows use numeric SNP sorting
+PASS Non-PubMed abstract is enriched
+PASS Publication type metadata is retained
+PASS Authoritative review metadata prevents false RCT classification
+PASS Web sessions do not write shared result files
+PASS Results table uses client-side data and cannot time out on a DT Ajax request
+PASS Query editor explains that changes are optional
+PASS Query editor can restore source defaults
+PASS Web interface exposes optional publication-year bounds
+PASS Web search stores validated publication-year bounds in session settings
+PASS Web interface exposes the column customizer and presets
+PASS Results table and both downloads use the selected columns
+PASS Column order can be changed by dragging selected fields
+PASS Removing every field restores the core preset
+PASS Results table renders safe one-click article links
+PASS Long table values wrap inside their cells without fixed-column overlays
+PASS Authors and abstracts expand on demand in the results table
+PASS Expandable text buttons do not select the entire result row
+PASS Results workspace uses the available viewport width and height
+PASS Column preset notifications replace each other instead of stacking
+PASS Web layout prevents fixed-width inputs and columns from overflowing
+PASS Connect Cloud manifest targets a supported Shiny runtime
+PASS HWE negation is preserved
+PASS A non-randomized clinical trial is not RCT
+PASS Nonrandomized metadata is not RCT
+PASS Explicit randomized metadata remains RCT
+PASS Inequality is preserved in an extracted p-value
+PASS Unicode p-value and scientific notation survive
+PASS Impossible p-values are rejected
+PASS Empty DOI never attaches another article full text
+PASS Source ID still attaches the correct full text
+PASS Abstract-only rows have a qualitative review status
+PASS PMID deduplicates a record whose DOI is missing
+PASS Conflicting DOI values are never collapsed by title or PMID
+PASS SNPs in full text are included
+PASS Genes in full text are included
+PASS Full text source is recorded
+PASS Association extraction excludes background and bibliography
+PASS SNP-specific p-value is preserved
+PASS Separate SNP results produce separate associations
+PASS Negative effect is preserved
+PASS Negative CI bounds are preserved
+PASS Second SNP receives its own p-value
+PASS Effect allele retains its identity
+PASS Multiple SNPs are marked ambiguous
+PASS Ambiguous comparisons do not get arbitrary numbers
+PASS Adjusted p-value belongs to the same SNP
+PASS Study period is extracted independently from publication date
+PASS Group sizes retain their labels
+PASS Actual sport replaces a placeholder
+PASS Actual model covariates are retained
+PASS Repository URL is available separately
+PASS Absence of adjustment does not invent significance
+PASS Mentioning BMI alone does not make it a model covariate
+PASS A generic data statement does not invent a repository
+PASS Nested methods section retains its parent
+PASS PMC table binds headers to cells
+PASS PMC back-matter data links are retained
+PASS PMC reference SNP is excluded
+PASS HTML preserves table rows
+PASS Evidence assessment never awards A/B/C/D from study design
+PASS Evidence profile distinguishes replication from paper count
+PASS Archive roundtrip preserves article values
+PASS Archive roundtrip preserves full text
+PASS Archive roundtrip preserves associations
+PASS Manual review updates the selected field
+PASS Manual review retains the previous value
+PASS Verified fields survive offline reprocessing
+PASS Review requires an explicit basis
+PASS Identifiers cannot be edited through field review
+PASS Empty search can be enriched without errors
+PASS Empty archive is readable
+PASS Clinical protocol is not a completed trial
+PASS ACE adverse childhood experience acronym is not a gene
+PASS ACTN-3 spelling is normalized
+PASS Russian HWE negative statement stays negative
+PASS Russian sports and sample groups are retained
+PASS Title-only SNP link is explicitly provisional
+PASS Title-only SNP link retains supporting title
+PASS Conflicting gene prevents title-based attribution
+PASS Covariate adjustment is not multiple-testing correction
+PASS Covariate-adjusted regression p is preserved
+PASS Bibliographic URLs are not data repository URLs
+PASS Merged tables retain ambiguous row rather than inferred headers
+PASS PDF bibliography is excluded across page boundaries
+PASS PMC URL can join full text without a PMID
+PASS Manual gene survives repeated offline extraction
+PASS Manual gene evidence survives repeated extraction
+PASS Recruitment count with modifiers and British spelling
+PASS Recruitment period survives British spelling
+PASS Deployment manifest includes all runtime R modules
+PASS Significance threshold is not an observed SNP association
+PASS HWE quality-control p is not a phenotype association
+PASS PDF bibliography is excluded from the article SNP list
+PASS Section fallback never mines PDF references
+
+RESULT 165 passed; 0 failed

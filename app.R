@@ -7,9 +7,11 @@ options(article_parser.root = ROOT)
 for (file in c(
   "src/00_common.R", "src/01_pubmed.R", "src/02_sciencedirect.R",
   "src/03_openalex.R", "src/03_crossref.R", "src/04_merge_export.R",
-  "src/05_pmc_fulltext.R", "src/06_pipeline.R"
+  "src/05_pmc_fulltext.R", "src/05b_extraction.R", "src/05c_documents.R",
+  "src/06_pipeline.R", "src/07_evidence_archive.R"
 )) source(file.path(ROOT, file))
 
+options(shiny.maxRequestSize = 100 * 1024^2)
 suppressPackageStartupMessages(library(shiny))
 suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(bslib))
@@ -75,6 +77,7 @@ textarea.form-control { font-family:'IBM Plex Mono',monospace; font-size:12px; l
 .run-status { margin-top:12px; padding:10px 12px; font-size:13px; border:1px solid var(--line); background:#f8f6ef; }
 .run-status.running { background:#fff4d6; border-color:#d9b45d; }
 .run-status.success { background:#edf5f1; border-color:#8fbaaa; }
+.run-status.warning { background:#fff4d6; border-color:#d9b45d; }
 .run-status.error { background:#fbede7; border-color:#df9b87; }
 .status-log { background:#102a2d; color:#dce9e5; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:14px; min-height:150px; white-space:pre-wrap; }
 .nav-tabs { border-bottom-color:var(--line); }
@@ -169,7 +172,7 @@ ui <- page_navbar(
         div(class = "intro-copy",
           div(class = "eyebrow", "Литературный поиск · спортивная генетика"),
           h1("Из запроса — в проверяемую таблицу"),
-          p("PubMed, Elsevier и русскоязычные публикации OpenAlex. Каждое извлечённое поле сопровождается уверенностью и фрагментом-основанием.")
+          p("PubMed, Elsevier и русскоязычные публикации OpenAlex. Извлечённые данные сопровождаются исходными фрагментами и статусом проверки.")
         ),
         div(class = "export-actions",
             downloadButton("download_csv", "CSV"),
@@ -198,7 +201,7 @@ ui <- page_navbar(
             ),
             p(class = "field-help", "Оставьте оба поля пустыми, чтобы искать за всё время. Можно заполнить только одно поле."),
             numericInput("max_records", "Статей на каждый источник",
-                         value = 200, min = 0, step = 25),
+                         value = 200, min = 0, step = 1),
             p(class = "field-help", "200 — обычный запуск. 0 — загрузить максимум, разрешённый источником."),
             checkboxInput("fulltext", "Извлекать доступные полные тексты", TRUE),
             p(class = "field-help", "Это улучшает извлечение полей, но увеличивает время обработки."),
@@ -206,11 +209,11 @@ ui <- page_navbar(
               class = "query-editor",
               tags$summary("Свой ключ Elsevier (необязательно)"),
               passwordInput("elsevier_key", NULL, value = "",
-                            placeholder = "Оставьте пустым: серверный ключ уже подключён"),
+                            placeholder = "Серверный ключ или ключ текущего сеанса"),
               p(class = "field-help", "Введённый ключ действует только в текущем сеансе.")
             ),
             div(class = "source-note",
-                "Elsevier уже подключён. Если ScienceDirect Search недоступен, используется официальный Scopus API с фильтром Elsevier."),
+                "Для Elsevier нужен ключ. Если ScienceDirect Search недоступен, используется Scopus с фильтром Elsevier; маршрут показан в таблице и журнале."),
             actionButton(
               "run", "Запустить поиск", class = "btn-primary", width = "100%",
               onclick = "this.disabled=true; this.textContent='Поиск выполняется…'; var s=document.querySelector('#run_status .run-status'); if(s){s.className='run-status running'; s.textContent='Поиск выполняется. Не закрывайте вкладку; полный запуск может занять несколько минут.';}"
@@ -226,6 +229,35 @@ ui <- page_navbar(
                 p(class = "result-help",
                   "Нажмите на название статьи, PMID, DOI или «Открыть статью ↗», чтобы перейти к публикации в новой вкладке."),
                 DTOutput("results")
+              ),
+              nav_panel("Ассоциации",
+                p(class = "result-help", "Одна запись — один фрагмент с SNP и результатом. Неоднозначные сравнения сохранены без автоматического присвоения чисел."),
+                downloadButton("download_associations", "Ассоциации CSV"),
+                DTOutput("associations")
+              ),
+              nav_panel("Проверка",
+                p(class = "result-help", "Выберите статью и поле. Сверьте значение с сохранённым текстом или оригиналом. Подтверждение сохраняется вместе с основанием; его можно отменить."),
+                selectInput("review_article", "Статья", choices = character(), width = "100%"),
+                selectInput("review_field", "Поле", choices = setNames(REVIEWABLE_COLS, unname(TABLE_COLUMN_LABELS[REVIEWABLE_COLS]))),
+                textAreaInput("review_value", "Значение", rows = 3, width = "100%"),
+                textAreaInput("review_basis", "Основание: цитата, раздел / страница или пояснение", rows = 3, width = "100%"),
+                actionButton("save_review", "Подтвердить поле"),
+                actionButton("undo_review", "Отменить последнюю проверку"),
+                tags$details(tags$summary("Основание текущего значения"), verbatimTextOutput("review_evidence")),
+                tags$details(tags$summary("Сохранённый текст статьи"), verbatimTextOutput("review_document"))
+              ),
+              nav_panel("Доказательства",
+                p(class = "result-help", "Предварительный профиль: дизайн, точность и применимость. Это не GRADE и не оценка OpenEvidence. Число публикаций не доказывает независимую репликацию; размер выборки и название журнала не дают автоматического рейтинга."),
+                DTOutput("evidence_profiles"),
+                h4("Публикации по сопоставляемым признакам"),
+                DTOutput("evidence_summary")
+              ),
+              nav_panel("Архив",
+                p(class = "result-help", "Архив содержит таблицу, доступные тексты, ассоциации, запросы и историю ручной проверки. Скачайте его для продолжения работы без повторного поиска. Ключи в архив не входят."),
+                downloadButton("download_archive", "Скачать архив JSON"),
+                fileInput("import_archive", "Открыть сохранённый архив", accept = ".json"),
+                actionButton("reprocess_archive", "Повторить извлечение из архива"),
+                p(class = "field-help", "Повторное извлечение выполняется без сети и сохраняет подтверждённые пользователем поля.")
               ),
               nav_panel("Столбцы",
                 div(class = "column-config",
@@ -274,7 +306,7 @@ ui <- page_navbar(
                 div(class = "source-note warning-note",
                     "Платные полные тексты не обходятся. Поля заполняются из метаданных, аннотаций, PMC и легально доступных открытых текстов. Пустое поле означает, что подтверждаемое значение не найдено."),
                 tags$ul(
-                  tags$li("OpenAlex заменяет нестабильный веб-парсинг eLIBRARY и проходит строгую локальную фильтрацию."),
+                  tags$li("OpenAlex ищет русскоязычные и российские публикации; его охват не совпадает с eLIBRARY. Прямой поиск eLIBRARY не подключён."),
                   tags$li("Crossref только дополняет DOI и библиографию при высоком совпадении названия."),
                   tags$li("extraction_evidence содержит раздел и исходный фрагмент для ручной проверки.")
                 )
@@ -288,10 +320,11 @@ ui <- page_navbar(
 )
 
 server <- function(input, output, session) {
-  result_data <- reactiveVal(data.frame())
+  result_data <- reactiveVal(assess_evidence(enrich_final_table(build_final_table(pubmed_empty_df(), sd_empty_df(), openalex_empty_df(), settings_initial), settings = settings_initial)))
   run_state <- reactiveVal(list(kind = "idle", text = "Готово к запуску. Запросы уже настроены."))
   log_lines <- reactiveVal("Приложение готово. Запросы уже настроены; нажмите «Запустить поиск».")
   empty_columns_reset <- reactiveVal(FALSE)
+  review_undo <- reactiveVal(NULL)
   append_log <- function(text) {
     stamp <- format(Sys.time(), "%H:%M:%S")
     log_lines(paste(log_lines(), paste0("[", stamp, "] ", text), sep = "\n"))
@@ -317,6 +350,66 @@ server <- function(input, output, session) {
     if (ncol(df) == 0) return(df)
     select_output_columns(df, selected_columns())
   })
+
+  observeEvent(result_data(), {
+    df <- result_data()
+    if (!nrow(df)) return()
+    selected <- isolate(input$review_article)
+    if (is.null(selected) || !selected %in% df$article_id) selected <- df$article_id[1]
+    updateSelectInput(session, "review_article", choices = setNames(df$article_id, paste(df$year, df$title)), selected = selected)
+  })
+  review_index <- reactive({ req(nrow(result_data()), input$review_article); match(input$review_article, result_data()$article_id) })
+  observeEvent(list(input$review_article, input$review_field, result_data()), {
+    req(input$review_field, input$review_article)
+    i <- review_index(); req(!is.na(i))
+    updateTextAreaInput(session, "review_value", value = result_data()[[input$review_field]][i])
+    updateTextAreaInput(session, "review_basis", value = "")
+  })
+  output$review_evidence <- renderText({
+    i <- review_index(); req(!is.na(i), input$review_field)
+    evidence <- tryCatch(jsonlite::fromJSON(result_data()$extraction_evidence[i], simplifyVector = FALSE), error = function(e) list())
+    item <- evidence[[input$review_field]]
+    if (is.null(item)) "Основание не извлечено." else paste(item$section, item$snippet, sep = "\n")
+  })
+  output$review_document <- renderText({
+    req(input$review_article)
+    (attr(result_data(), "documents") %||% list())[[input$review_article]] %||% "Текст не сохранён."
+  })
+  observeEvent(input$save_review, {
+    tryCatch({
+      next_data <- review_article_field(result_data(), input$review_article, input$review_field, input$review_value, input$review_basis)
+      review_undo(result_data()); result_data(next_data)
+      showNotification("Поле подтверждено. Скачайте архив, чтобы сохранить проверку.", type = "message")
+    }, error = function(e) showNotification(conditionMessage(e), type = "error"))
+  })
+  observeEvent(input$undo_review, {
+    req(!is.null(review_undo()))
+    result_data(review_undo()); review_undo(NULL)
+    showNotification("Последняя проверка отменена.", type = "message")
+  })
+  observeEvent(input$import_archive, {
+    req(input$import_archive$datapath)
+    tryCatch({
+      imported <- read_research_archive(input$import_archive$datapath)
+      result_data(imported); review_undo(NULL)
+      run_state(list(kind = "success", text = paste("Архив открыт:", nrow(imported), "статей. Доступна локальная проверка.")))
+      append_log(paste("Открыт архив:", nrow(imported), "статей. Сеть не использовалась."))
+      showNotification("Архив открыт.", type = "message")
+    }, error = function(e) showNotification(conditionMessage(e), type = "error"))
+  })
+  observeEvent(input$reprocess_archive, {
+    tryCatch({
+      next_data <- reprocess_archive(result_data())
+      review_undo(result_data()); result_data(next_data)
+      showNotification("Извлечение повторено без сети. Подтверждённые поля сохранены.", type = "message")
+    }, error = function(e) showNotification(conditionMessage(e), type = "error"))
+  })
+  output$associations <- renderDT({ datatable(attr(result_data(), "associations") %||% empty_associations(), rownames = FALSE, escape = TRUE, options = list(scrollX = TRUE, pageLength = 10)) }, server = FALSE)
+  output$evidence_summary <- renderDT({ datatable(association_summary(result_data()), rownames = FALSE, escape = TRUE, options = list(scrollX = TRUE)) }, server = FALSE)
+  output$evidence_profiles <- renderDT({
+    df <- result_data(); req(nrow(df))
+    datatable(evidence_display(df), rownames = FALSE, escape = TRUE, options = list(scrollX = TRUE, pageLength = 10))
+  }, server = FALSE)
 
   output$column_summary <- renderUI({
     count <- length(selected_columns())
@@ -367,7 +460,7 @@ server <- function(input, output, session) {
       div(class = "metric", strong(nrow(df)), span("строк после дедупликации")),
       div(class = "metric", strong(sources), span("источников в выдаче")),
       div(class = "metric", strong(genes), span("строк с найденным геном")),
-      div(class = "metric", strong(evidence), span("строк с доказательствами"))
+      div(class = "metric", strong(evidence), span("строк с фрагментами"))
     )
   })
 
@@ -388,7 +481,16 @@ server <- function(input, output, session) {
   }, server = FALSE)
 
   observeEvent(input$run, {
-    req(length(input$sources) > 0)
+    validation_error <- if (!length(input$sources)) "Выберите хотя бы один источник." else
+      if (length(input$max_records) != 1L || is.na(input$max_records) || !is.finite(input$max_records) ||
+          input$max_records < 0 || input$max_records != floor(input$max_records) || input$max_records > .Machine$integer.max)
+        "Количество статей должно быть целым неотрицательным числом." else NULL
+    if (!is.null(validation_error)) {
+      run_state(list(kind = "error", text = validation_error))
+      session$sendCustomMessage("search-running", list(running = FALSE, kind = "error", text = validation_error))
+      showNotification(validation_error, type = "error")
+      return()
+    }
     settings <- load_project_settings()
     year_range <- tryCatch(
       publication_year_range(list(publication_year = list(
@@ -455,10 +557,12 @@ server <- function(input, output, session) {
         )
         if (length(warnings) > 0) for (warning in unique(warnings)) append_log(paste("Предупреждение:", warning))
         result_data(result)
-        run_state(list(kind = "success", text = paste("Готово:", nrow(result), "строк. Таблицу можно проверить и скачать.")))
+        review_undo(NULL)
+        finished_kind <- if (length(warnings)) "warning" else "success"
+        finished_text <- paste(if (length(warnings)) "Готово с ограничениями:" else "Готово:", nrow(result), "строк.", if (length(warnings)) "Проверьте журнал источников." else "Таблицу можно проверить и скачать.")
+        run_state(list(kind = finished_kind, text = finished_text))
         session$sendCustomMessage("search-running", list(
-          running = FALSE, kind = "success",
-          text = paste("Готово:", nrow(result), "строк. Таблицу можно проверить и скачать.")
+          running = FALSE, kind = finished_kind, text = finished_text
         ))
       }),
       error = function(e) {
@@ -479,7 +583,15 @@ server <- function(input, output, session) {
   )
   output$download_xlsx <- downloadHandler(
     filename = function() paste0("sportgen_articles_", Sys.Date(), ".xlsx"),
-    content = function(file) openxlsx::write.xlsx(visible_result_data(), file, overwrite = TRUE)
+    content = function(file) write_research_workbook(result_data(), file, selected_columns())
+  )
+  output$download_archive <- downloadHandler(
+    filename = function() paste0("sportgen_archive_", Sys.Date(), ".json"),
+    content = function(file) write_research_archive(result_data(), file)
+  )
+  output$download_associations <- downloadHandler(
+    filename = function() paste0("sportgen_associations_", Sys.Date(), ".csv"),
+    content = function(file) readr::write_csv(attr(result_data(), "associations") %||% empty_associations(), file)
   )
 }
 

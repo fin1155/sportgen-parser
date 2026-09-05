@@ -10,35 +10,6 @@ pmc_empty_df <- function() {
   data.frame(pmid = character(0), fulltext = character(0), stringsAsFactors = FALSE)
 }
 
-# Преобразуем PMC XML в секции. Библиографию намеренно не включаем.
-strip_xml <- function(raw) {
-  text <- if (is.raw(raw)) rawToChar(raw) else paste(raw, collapse = "\n")
-  document <- tryCatch(xml2::read_xml(text), error = function(e) NULL)
-  if (is.null(document)) return(normalize_space(gsub("<[^>]+>", " ", text)))
-
-  blocks <- character(0)
-  abstract_nodes <- xml2::xml_find_all(document, ".//abstract//p")
-  if (length(abstract_nodes) > 0) {
-    abstract <- normalize_space(paste(xml2::xml_text(abstract_nodes), collapse = " "))
-    if (nzchar(abstract)) blocks <- c(blocks, "[[SECTION: Abstract]]", abstract)
-  }
-
-  paragraphs <- xml2::xml_find_all(document, ".//body//p[not(ancestor::ref-list)]")
-  current_section <- NULL
-  for (paragraph in paragraphs) {
-    section_node <- xml2::xml_find_first(paragraph, "ancestor::sec[1]/title[1]")
-    section <- if (inherits(section_node, "xml_missing")) "Body" else normalize_space(xml2::xml_text(section_node))
-    value <- normalize_space(xml2::xml_text(paragraph))
-    if (!nzchar(value)) next
-    if (!identical(section, current_section)) {
-      blocks <- c(blocks, paste0("[[SECTION: ", section, "]]"))
-      current_section <- section
-    }
-    blocks <- c(blocks, value)
-  }
-  paste(blocks, collapse = "\n")
-}
-
 section_subset <- function(text, names) {
   if (!grepl("\\[\\[SECTION:", text)) return(text)
   lines <- strsplit(text, "\n", fixed = TRUE)[[1]]
@@ -48,12 +19,24 @@ section_subset <- function(text, names) {
     if (grepl("^\\[\\[SECTION:", lines[i])) {
       section <- sub("^\\[\\[SECTION:[[:space:]]*", "", lines[i])
       section <- sub("\\]\\]$", "", section)
-      active <- any(grepl(paste(names, collapse = "|"), section, ignore.case = TRUE, perl = TRUE))
+      active <- any(grepl(paste(names, collapse = "|"), section, ignore.case = TRUE, perl = TRUE)) &&
+        !grepl("reference|bibliograph|литератур|introduction|discussion|background|введени|обсуждени", section, ignore.case = TRUE)
     }
     keep[i] <- active
   }
   selected <- paste(lines[keep], collapse = "\n")
-  if (nzchar(normalize_space(selected))) selected else text
+  if (nzchar(normalize_space(selected))) return(selected)
+  # A missing Methods/Results section is not permission to mine references or
+  # a discussion of other studies. Abstract/unstructured full text is fallback.
+  active <- FALSE
+  for (i in seq_along(lines)) {
+    if (grepl("^\\[\\[SECTION:", lines[i])) {
+      active <- grepl("Abstract|Body|Open full text|Page|Аннотац|Резюме", lines[i], ignore.case = TRUE) &&
+        !grepl("reference|bibliograph|литератур|introduction|discussion|background|введени|обсуждени", lines[i], ignore.case = TRUE)
+    }
+    keep[i] <- active
+  }
+  paste(lines[keep], collapse = "\n")
 }
 
 evidence_snippet <- function(pattern, text, radius = 140) {
@@ -112,8 +95,7 @@ load_pmc_fulltext <- function(pm_df, settings = NULL) {
   }
   df <- pmc_empty_df()
   eligible <- which(
-    nzchar(as.character(pm_df$pmid)) &
-      grepl("pmc\\.ncbi\\.nlm\\.nih\\.gov/articles/PMC", as.character(pm_df$fulltext_url),
+    grepl("pmc\\.ncbi\\.nlm\\.nih\\.gov/articles/PMC", as.character(pm_df$fulltext_url),
             ignore.case = TRUE)
   )
   pmc_cfg <- settings$pmc %||% list()
@@ -133,26 +115,13 @@ load_pmc_fulltext <- function(pm_df, settings = NULL) {
     Sys.sleep(pause)
     texts[i] <- fetch_pmc_text(pmids[i], pmcids[i])
   }
-  out_df <- data.frame(pmid = pmids, fulltext = texts, stringsAsFactors = FALSE)
+  out_df <- data.frame(pmid = pmids, fulltext = texts, fulltext_url = pm_df$fulltext_url[eligible], stringsAsFactors = FALSE)
   return(out_df)
 }
 
 open_fulltext_empty_df <- function() {
   data.frame(doi = character(0), source_id = character(0), fulltext = character(0),
              stringsAsFactors = FALSE)
-}
-
-html_body_text <- function(text) {
-  text <- scalar_text(text %||% "")
-  if (!nzchar(text)) return("")
-  document <- tryCatch(xml2::read_html(text), error = function(e) NULL)
-  if (is.null(document)) return("")
-  xml2::xml_remove(xml2::xml_find_all(document, ".//script|.//style|.//nav|.//footer|.//header"))
-  body <- xml2::xml_find_first(document, ".//body")
-  if (inherits(body, "xml_missing")) return("")
-  body_text <- xml2::xml_text(body)
-  if (length(body_text) == 0 || is.na(body_text)) return("")
-  normalize_space(body_text)
 }
 
 fetch_open_fulltext <- function(url, timeout_sec = 45) {
@@ -174,7 +143,7 @@ fetch_open_fulltext <- function(url, timeout_sec = 45) {
     on.exit(unlink(path), add = TRUE)
     writeBin(response$content, path)
     pages <- tryCatch(pdftools::pdf_text(path), error = function(e) character(0))
-    return(normalize_space(paste(pages, collapse = "\n")))
+    return(pdf_document_text(pages))
   }
   text <- tryCatch(rawToChar(response$content), error = function(e) "")
   html_body_text(text)
@@ -271,16 +240,16 @@ grab_plausible_p <- function(txt) {
 }
 
 # Все поля целевой таблицы из полного текста
-extract_detail_fields <- function(txt) {
+extract_legacy_fields <- function(txt) {
   if (is.na(txt)) txt <- ""
   abstract_txt <- section_subset(txt, c("abstract"))
   methods_txt <- section_subset(
     txt,
-    c("method", "material", "participant", "subject", "population", "sample", "cohort",
+    c("метод", "материал", "участник", "выборк", "method", "material", "participant", "subject", "population", "sample", "cohort",
       "design", "inclusion", "exclusion", "procedure", "protocol", "statistical",
       "genom", "genotyp", "quality control")
   )
-  results_txt <- section_subset(txt, c("result", "finding", "outcome", "association", "effect"))
+  results_txt <- section_subset(txt, c("результ", "таблиц", "table", "result", "finding", "outcome", "association", "effect"))
   overview_txt <- paste(abstract_txt, methods_txt, sep = "\n")
   methods_results_txt <- paste(methods_txt, results_txt, sep = "\n")
 
@@ -526,61 +495,6 @@ extract_detail_fields <- function(txt) {
     effect_dir = effect_dir, effect_size = effect_size, p_adj = p_adj,
     gene_env = gene_env, multipletest = multipletest, power = power, data_avail = data_avail
   )
-  evidence_patterns <- list(
-    pub_type = "meta-analysis|systematic review|case-control|randomi[sz]ed|cohort|observational|review",
-    inherit_model = "additive|dominant|recessive|codominant",
-    allele_freq = "allele.{0,30}frequency|frequency.{0,30}allele",
-    hwe = "hardy[- ]?weinberg|\\bhwe\\b",
-    sample_type = "athlete|healthy (adult|subject|participant|volunteer)|patient",
-    ethnicity = "caucasian|european|asian|african|hispanic|latin",
-    sample_size = "\\bN\\s*=|sample size|total of [0-9]+ (subjects|participants|patients)",
-    sex = "males?|females?|men|women",
-    age = "mean.{0,30}age|average age|ages? (of|between)",
-    pa_level = "accelerometer|questionnaire|IPAQ|self-report|\\bgps\\b",
-    phenotype = "vo2 ?max|strength|injur|aerobic",
-    measure_method = "bruce protocol|(12|six|6)-minute|handgrip|treadmill|ergometer",
-    covariates = "bmi|body mass index|smoking|diet|training",
-    results = "odds ratio|(?:β|beta)\\s*[-=]|\\bp\\s*[<>=]|95\\s*%?\\s*CI",
-    effect_dir = "protective|beneficial|risk|adverse|not significant|non-significant",
-    effect_size = "cohen'?s?\\s*d|η²|eta\\s*squared",
-    p_adj = "adjusted p|post-hoc correction|multiple comparisons",
-    gene_env = "gene-environment|genetic interaction|SNP\\s*(x|×)",
-    multipletest = "bonferroni|fdr|false discovery rate|holm",
-    power = "post-hoc power|power analysis|adequately powered|power of the study",
-    data_avail = "dbgap|geo accession|dryad|zenodo|data availability"
-  )
-  if (nzchar(sample_size)) {
-    evidence_patterns$sample_size <- paste0("\\b", sample_size, "\\b")
-  }
-  evidence_contexts <- list(
-    pub_type = overview_txt, inherit_model = methods_txt, allele_freq = methods_results_txt,
-    hwe = methods_results_txt, sample_type = methods_txt, ethnicity = methods_txt,
-    sample_size = methods_txt, sex = methods_txt, age = methods_txt, pa_level = methods_txt,
-    phenotype = paste(overview_txt, results_txt), measure_method = methods_results_txt,
-    covariates = methods_txt, results = results_txt, effect_dir = results_txt,
-    effect_size = results_txt, p_adj = results_txt, gene_env = results_txt,
-    multipletest = methods_results_txt, power = methods_results_txt,
-    data_avail = methods_results_txt
-  )
-  structured <- grepl("\\[\\[SECTION:", txt)
-  evidence <- list()
-  for (field in names(out)) {
-    if (!nzchar(out[[field]])) next
-    hit <- evidence_snippet(evidence_patterns[[field]], evidence_contexts[[field]])
-    if (is.null(hit)) next
-    evidence[[field]] <- list(
-      value = out[[field]], section = hit$section, snippet = hit$snippet,
-      confidence = if (structured) 0.8 else 0.45
-    )
-  }
-  attr(out, "evidence") <- evidence
-  nonempty_fields <- sum(vapply(out, nzchar, logical(1)))
-  attr(out, "confidence") <- if (length(evidence) > 0 && nonempty_fields > 0) {
-    base_confidence <- if (structured) 0.8 else 0.45
-    round(base_confidence * length(evidence) / nonempty_fields, 2)
-  } else {
-    0
-  }
   return(out)
 }
 
@@ -595,7 +509,10 @@ metadata_publication_type <- function(value) {
   if (!nzchar(value)) return("")
   if (grepl("meta-analysis", value)) return("мета-анализ")
   if (grepl("systematic review", value)) return("систематический обзор")
-  if (grepl("randomized|randomised|clinical trial|rct", value)) return("RCT")
+  if (grepl("non.?random|not random", value)) return("нерандомизированное исследование")
+  if (grepl("(^|; *)(randomized controlled trial|randomised controlled trial|rct)($|;)", value)) return("RCT")
+  if (grepl("clinical trial protocol", value)) return("протокол клинического испытания")
+  if (grepl("clinical trial|controlled clinical trial", value)) return("клиническое испытание (рандомизация не подтверждена)")
   if (grepl("case-control", value)) return("case-control")
   if (grepl("cohort", value)) return("когортное")
   if (grepl("review", value)) return("обзор")
@@ -603,19 +520,27 @@ metadata_publication_type <- function(value) {
   value
 }
 
-enrich_final_table <- function(df, pmc_df = pmc_empty_df(), open_fulltext_df = open_fulltext_empty_df()) {
-  for (column in ENRICH_COLS) df[[column]] <- ""
-  df$extraction_confidence <- 0
-  df$extraction_evidence <- ""
-  pmc_index <- if (nrow(pmc_df) > 0) match(as.character(df$pmid), pmc_df$pmid) else rep(NA_integer_, nrow(df))
+enrich_final_table <- function(df, pmc_df = pmc_empty_df(), open_fulltext_df = open_fulltext_empty_df(), settings = NULL) {
+  for (column in c(ENRICH_COLS, "article_id", "text_source", "missing_fields", "evidence_profile", "evidence_reasons")) df[[column]] <- rep("", nrow(df))
+  df$extraction_confidence <- rep("не оценивалась", nrow(df))
+  df$extraction_evidence <- rep("", nrow(df))
+  associations <- list()
+  documents <- list()
+  symbols <- load_gene_symbols(settings %||% load_project_settings())
+  pmc_index <- if (nrow(pmc_df) > 0) match_nonempty(as.character(df$pmid), pmc_df$pmid) else rep(NA_integer_, nrow(df))
+  if ("fulltext_url" %in% names(pmc_df)) {
+    by_url <- match_nonempty(df$fulltext_url, pmc_df$fulltext_url)
+    pmc_index[is.na(pmc_index)] <- by_url[is.na(pmc_index)]
+  }
   doi_index <- if (nrow(open_fulltext_df) > 0) {
-    match(vapply(df$doi, normalize_doi, character(1)), open_fulltext_df$doi)
+    match_nonempty(vapply(df$doi, normalize_doi, character(1)), open_fulltext_df$doi)
   } else rep(NA_integer_, nrow(df))
   source_index <- if (nrow(open_fulltext_df) > 0) {
-    match(as.character(df$source_id), open_fulltext_df$source_id)
+    match_nonempty(as.character(df$source_id), open_fulltext_df$source_id)
   } else rep(NA_integer_, nrow(df))
 
   for (i in seq_len(nrow(df))) {
+    text_source <- "abstract"
     blocks <- c(
       "[[SECTION: Metadata]]",
       normalize_space(paste(df$title[i], df$publication_type[i], df$mesh[i], sep = ". ")),
@@ -624,31 +549,52 @@ enrich_final_table <- function(df, pmc_df = pmc_empty_df(), open_fulltext_df = o
     )
     if (!is.na(pmc_index[i]) && nzchar(pmc_df$fulltext[pmc_index[i]])) {
       blocks <- c(blocks, pmc_df$fulltext[pmc_index[i]])
+      text_source <- "pmc"
     } else {
       open_index <- if (!is.na(doi_index[i])) doi_index[i] else source_index[i]
       if (!is.na(open_index) && nzchar(open_fulltext_df$fulltext[open_index])) {
         blocks <- c(blocks, "[[SECTION: Open full text]]", open_fulltext_df$fulltext[open_index])
+        text_source <- "open_fulltext"
       }
     }
     txt <- paste(blocks, collapse = "\n")
     f <- extract_detail_fields(txt)
+    documents[[i]] <- txt
+    identity_text <- paste(df$title[i], df$abstract[i], df$mesh[i], section_subset(txt, c("abstract", "method", "material", "result", "body", "open full", "table", "page", "метод", "результ")), collapse = "\n")
+    df$gene[i] <- extract_gene(identity_text, symbols)
+    df$snp[i] <- extract_snp(identity_text)
+    df$text_source[i] <- text_source
+    article_id <- article_identity(df[i, , drop = FALSE])
+    df$article_id[i] <- article_id
+    assoc <- extract_associations(txt, article_id, symbols, df$title[i])
+    if (nrow(assoc)) associations[[length(associations) + 1L]] <- assoc
     metadata_type <- metadata_publication_type(df$publication_type[i])
     # Тип публикации из индекса журнала надёжнее упоминаний других дизайнов
     # во введении/обзоре (например, review of randomized trials != RCT).
-    if (metadata_type %in% c("мета-анализ", "систематический обзор", "обзор", "RCT",
-                             "case-control", "когортное")) {
+    if ((nzchar(metadata_type) && metadata_type != "статья") || !nzchar(f$pub_type)) {
       f$pub_type <- metadata_type
-    } else if (!nzchar(f$pub_type)) {
-      f$pub_type <- metadata_type
+      ev <- attr(f, "evidence")
+      ev$pub_type <- list(value = metadata_type, section = "Metadata", snippet = df$publication_type[i], status = "метаданные источника")
+      attr(f, "evidence") <- ev
     }
+    ev <- attr(f, "evidence") %||% list()
+    for (field in c("gene", "snp")) {
+      if (nzchar(df[[field]][i])) ev[[field]] <- list(value = df[[field]][i], section = "Title / Abstract / full text", snippet = paste(unique(text_units(identity_text)$snippet[grepl(if (field == "snp") "rs[0-9]+" else "gene|genetic|genotyp|variant|polymorphism|ген|полиморф", text_units(identity_text)$snippet, ignore.case = TRUE)]), collapse = "\n"), status = "требует проверки")
+    }
+    attr(f, "evidence") <- ev
     for (column in ENRICH_COLS) df[[column]][i] <- f[[column]]
-    df$extraction_confidence[i] <- attr(f, "confidence") %||% 0
+    df$extraction_confidence[i] <- "требует проверки"
+    df$missing_fields[i] <- paste(names(f)[!vapply(f, nzchar, logical(1))], collapse = "; ")
     evidence <- attr(f, "evidence") %||% list()
+    evidence <- lapply(evidence, function(item) { item$article_id <- article_id; item$text_source <- text_source; item$source_url <- if (text_source == "abstract") df$url[i] else df$fulltext_url[i]; item })
     if (length(evidence) > 0) {
       df$extraction_evidence[i] <- jsonlite::toJSON(
         evidence, auto_unbox = TRUE, null = "null", digits = NA
       )
     }
   }
+  attr(df, "associations") <- if (length(associations)) do.call(rbind, associations) else empty_associations()
+  attr(df, "documents") <- setNames(documents, df$article_id)
+  df <- sort_articles(df)
   df
 }

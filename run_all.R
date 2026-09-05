@@ -12,7 +12,8 @@ options(article_parser.root = ROOT)
 for (file in c(
   "src/00_common.R", "src/01_pubmed.R", "src/02_sciencedirect.R",
   "src/03_openalex.R", "src/03_crossref.R", "src/04_merge_export.R",
-  "src/05_pmc_fulltext.R", "src/06_pipeline.R"
+  "src/05_pmc_fulltext.R", "src/05b_extraction.R", "src/05c_documents.R",
+  "src/06_pipeline.R", "src/07_evidence_archive.R"
 )) source(file.path(ROOT, file))
 
 settings <- load_project_settings()

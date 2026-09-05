@@ -1,3 +1,9 @@
+failed_source <- function(df, error) {
+  attr(df, "source_status") <- "failed"
+  attr(df, "source_error") <- conditionMessage(error)
+  df
+}
+
 load_project_settings <- function(path = file.path(parser_root(), "config", "settings.json")) {
   jsonlite::fromJSON(path, simplifyVector = FALSE)
 }
@@ -15,13 +21,19 @@ pipeline_report <- function(final, sources, queries, started_at, settings = list
   filled <- setNames(lapply(fill_columns, function(column) {
     sum(!is.na(final[[column]]) & nzchar(trimws(as.character(final[[column]]))))
   }), fill_columns)
-  source_info <- lapply(sources, function(df) {
+  source_keys <- c(PubMed = "pubmed", Elsevier = "sciencedirect", OpenAlex = "openalex")
+  source_info <- lapply(names(sources), function(name) {
+    df <- sources[[name]]
+    disabled <- identical(settings[[source_keys[[name]]]]$enabled, FALSE)
     list(
       retrieved = nrow(df),
+      status = if (disabled) "disabled" else attr(df, "source_status") %||% if (nrow(df)) "retrieved" else "empty_or_unavailable",
+      error = attr(df, "source_error") %||% "",
       total_reported = as.integer(attr(df, "total_results") %||% nrow(df)),
       retrieval_methods = unique(as.character(df$retrieval_method[nzchar(df$retrieval_method)]))
     )
   })
+  names(source_info) <- names(sources)
   year_range <- publication_year_range(settings)
   list(
     generated_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
@@ -30,6 +42,9 @@ pipeline_report <- function(final, sources, queries, started_at, settings = list
     sources = source_info,
     filled_fields = filled,
     queries = queries,
+    limits = lapply(settings[c("pubmed", "sciencedirect", "openalex", "pmc", "fulltext")], function(x) x[intersect(names(x), c("enabled", "max_records", "max_open_records", "batch_size", "candidate_multiplier", "mode"))]),
+    text_sources = as.list(table(final$text_source)),
+    assessment_method = EVIDENCE_METHOD_VERSION,
     publication_year = list(
       from = if (is.na(year_range$from)) "" else year_range$from,
       to = if (is.na(year_range$to)) "" else year_range$to
@@ -56,7 +71,7 @@ run_pipeline <- function(settings = NULL, queries = NULL, export = TRUE,
     load_pubmed(queries$pubmed, settings),
     error = function(e) {
       warning("PubMed: ", conditionMessage(e), call. = FALSE)
-      pubmed_empty_df()
+      failed_source(pubmed_empty_df(), e)
     }
   )
 
@@ -65,7 +80,7 @@ run_pipeline <- function(settings = NULL, queries = NULL, export = TRUE,
     load_sciencedirect(queries$sciencedirect, settings),
     error = function(e) {
       warning("ScienceDirect: ", conditionMessage(e), call. = FALSE)
-      sd_empty_df()
+      failed_source(sd_empty_df(), e)
     }
   )
 
@@ -74,7 +89,7 @@ run_pipeline <- function(settings = NULL, queries = NULL, export = TRUE,
     load_openalex(queries$openalex, settings),
     error = function(e) {
       warning("OpenAlex: ", conditionMessage(e), call. = FALSE)
-      openalex_empty_df()
+      failed_source(openalex_empty_df(), e)
     }
   )
 
@@ -87,19 +102,24 @@ run_pipeline <- function(settings = NULL, queries = NULL, export = TRUE,
   final <- build_final_table(pm, sd, oa, settings)
 
   progress("fulltext", "Получение доступных полных текстов")
-  pmc <- load_pmc_fulltext(pm, settings)
+  pmc <- load_pmc_fulltext(final, settings)
   open_text <- load_open_fulltext(final, settings)
 
   progress("extract", "Извлечение полей")
-  final <- enrich_final_table(final, pmc, open_text)
+  final <- enrich_final_table(final, pmc, open_text, settings)
 
+  final <- assess_evidence(final)
   report <- pipeline_report(final, list(PubMed = pm, Elsevier = sd, OpenAlex = oa),
                             queries, started_at, settings)
   attr(final, "report") <- report
   if (isTRUE(export)) {
     progress("export", "Экспорт CSV и XLSX")
     export_table(final, settings)
+    configured <- settings$out_dir %||% "out"
+    directory <- if (grepl("^(/|[A-Za-z]:)", configured)) configured else file.path(parser_root(), configured)
+    write_research_workbook(final, file.path(directory, "articles.xlsx"))
     write_pipeline_report(report, settings)
+    export_research_bundle(final, settings)
   }
   progress("done", paste("Готово:", nrow(final), "строк"))
   final

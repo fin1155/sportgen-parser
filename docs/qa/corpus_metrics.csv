@@ -1,0 +1,11 @@
+field,checks,correct,tp,fp,fn,precision,recall
+age,1,1,1,0,0,1,1
+data_links,30,30,0,0,0,NA,NA
+ethnicity,1,1,1,0,0,1,1
+hwe,30,30,0,0,0,NA,NA
+pa_level,2,2,2,0,0,1,1
+sample_groups,9,9,9,0,0,1,1
+sample_size,5,5,4,0,0,1,1
+sport,7,7,7,0,0,1,1
+study_period,3,3,1,0,0,1,1
+topic,30,30,16,0,0,1,1

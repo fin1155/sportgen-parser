@@ -1,0 +1,457 @@
+{
+  "provenance": {
+    "retrieved": "2026-09-05",
+    "source": "NCBI PubMed E-utilities",
+    "query": "(ACTN3 OR ACE) AND (athletes OR athletic performance) AND (2015:2025[dp])",
+    "annotation": "Source excerpts and expectations reviewed by the assistant. This is a development/regression set, not independent expert validation. Topic includes negative controls for ACE acronym ambiguity.",
+    "word_limit_per_source": 190
+  },
+  "records": [
+    {
+      "pmid": "41452715",
+      "title": "Disease-Associated and Shared Gut Microbes of Sarcopenia and Osteoporosis: A Systematic Review and Meta-Analys.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41452715/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Age-related declines in muscle and bone mass increase the risk of sarcopenia and osteoporosis. Both conditions contribute to morbidity and mortality in older adults and frequently coexist as osteosarcopenia. Gut microbiota play a crucial role in maintaining muscle and bone homeostasis, and dysbiosis may accelerate the onset and progression of these conditions. We therefore performed a systematic review and meta-analysis of observational studies published up to May 6, 2025. We identified 45 eligible studies including 6,751 participants. Patients with sarcopenia showed significant reductions in α-diversity indices compared with controls, including Chao1 (SMD=-0.28, 95% CI=-0.44, -0.11), observed species (SMD=-0.52, 95% CI=-0.79, -0.25), and ACE (SMD=-0.24, 95% CI=-0.48, -0.01), whereas patients with osteoporosis exhibited no significant differences. Distinct clustering of β-diversity was observed in twelve of eighteen sarcopenia studies (66.7%) and twelve of twenty-one osteoporosis studies (57.1%). This suggests that microbial community structures are altered in both conditions. Moreover, sarcopenia and osteoporosis shared consistent microbial alterations, with enrichment of the genus Eggerthella and depletion of the family Lachnospiraceae and the genus Blautia.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41432190",
+      "title": "China Elite Athletes Cardiovascular hEath (China-ACE) Study: A Protocol for a Multicenter Prospective Cohort.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41432190/",
+      "publication_type": "Clinical Trial Protocol; Journal Article",
+      "excerpt": "Exercise mediates cardiac adaptation in a dose-dependent manner, and each sport has unique demands on the cardiovascular system. Given the long-term effects of key confounding variables such as age, sex, and exercise dose, knowledge gained from one sport cannot be generalized to all sports. Therefore, it is necessary to explore the potential dose-response relationships between different sports and cardiovascular adaptations on a broader time scale, and to explore the regulatory role of key factors such as age and sex. The China-ACE study will be a prospective longitudinal cohort study involving approximately 500 elite athletes of different sexes, ages, and sports (rowing, canoeing, cycling, triathlon, weightlifting, wrestling, judo, swimming, basketball, badminton, boxing, and beach volleyball) from three provincial sports centers. All athletes will undergo two screenings within 1 year, during which their exercise load and dose will be recorded via quantitative and semi-quantitative methods. The screening will include measuring cardiovascular function, body composition, electrocardiogram, heart rate variability, echocardiography, cardiopulmonary function, circulating biochemical markers, sex hormones, lower limb muscle function, and physical performance.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sport": [
+          "rowing",
+          "judo"
+        ]
+      }
+    },
+    {
+      "pmid": "41402940",
+      "title": "Swimming exercise improves vascular function and mitigates cardiac apoptotic response via Bcl-2 and Caspase-3 pathway in streptozotocin-induced diabetic rats: in vivo and in silico molecular docking study.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41402940/",
+      "publication_type": "Journal Article",
+      "excerpt": "Diabetes mellitus (DM) can result in impaired blood flow and apoptosis. This study investigated the in vivo and in silico effects of Streptozotocin-induced DM (STZ-DM) on vascular endothelial functions and cardiac apoptotic markers after swimming exercise. This controlled experimental study was conducted using Wistar rats of both sexes. The rats were assigned to five groups (n = 7 each): control (C), diabetic (STZ-Dm), exercise (Ex), diabetic + exercise (STZ-Dm + Ex), and diabetic + insulin (STZ-Dm + In). DM was induced using streptozotocin (65 mg/kg IP), while 6 IU of insulin was administered (IP) to rats in the STZ-Dm + In group. The exercise groups were put through a structured swimming exercise for 27 days, after which blood samples and hearts were collected for biochemical and cardiac apoptotic marker determination, respectively. Molecular docking simulations of STZ on vascular and apoptotic markers were also conducted. Regular swimming exercise minimized hyperglycemia, reduced angiotensin converting enzyme activity, endothelin-1 levels, and raised nitric oxide level in STZ-Dm + Ex compared with STZ-Dm only group (p < 0.05). Hyperglycemia in STZ-Dm + Ex were comparable with control and STZ-Dm + In groups.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sport": [
+          "swimming"
+        ]
+      }
+    },
+    {
+      "pmid": "41391515",
+      "title": "Genetic and epigenetic determinants of injury risk and recovery in elite athletes: toward precision sports medicine.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41391515/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Musculoskeletal injuries and interindividual variability in recovery remain critical challenges for sustaining elite athletic performance. Despite advances in diagnostics, training, and rehabilitation, unexplained differences in injury risk and recovery efficiency persist. Growing evidence implicates genetic and epigenetic mechanisms in these disparities, influencing collagen integrity, inflammatory regulation, oxidative stress, and muscle regeneration. Key contributors include single-nucleotide polymorphisms (SNPs) in COL1A1, COL5A1, ACTN3, and IL6, as well as novel loci identified by genome-wide association studies (GWAS). Polygenic risk scores (PRS), which integrate the effects of multiple low-impact variants, enhance prediction compared to single-gene markers. Epigenetic regulators, including DNA methylation and exercise-responsive microRNAs (e.g., miR-206, miR-133a, miR-486), provide a dynamic interface linking genetic predisposition with environmental factors such as training load and nutrition. Integration of genomic data with wearable technologies and artificial intelligence enables real-time monitoring, adaptive recovery, and precision load management. Yet, clinical translation faces challenges including limited population diversity, interpretative complexity, and ethical concerns over data privacy and potential misuse.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41316421",
+      "title": "Causal effect analysis of serving performance using double machine learning.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41316421/",
+      "publication_type": "Journal Article",
+      "excerpt": "Serving performance is widely recognized as a critical factor influencing match outcomes in professional tennis. To evaluate its contribution to winning probability, this study analyzes ATP men's singles matches (2013-2024) and estimates the causal effects of four serve-related indicators: ace rate, first serve win rate, first serve in rate, and double fault rate.Results indicate that the ace rate shows a modest positive causal association rather than a uniformly negative one, while first serve win rate and first serve in rate exhibit context-dependent but statistically small impacts, and the double fault rate effects remain limited.These effects, although moderate in magnitude, remain statistically robust across multiple model specifications.The findings highlight the importance of adapting serve strategies across surfaces, ranking groups, and tournament levels.This study focuses exclusively on ATP men's singles data, and future research should validate these causal relationships in WTA and mixed competitions to enhance generalizability.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sport": [
+          "tennis"
+        ]
+      }
+    },
+    {
+      "pmid": "41303413",
+      "title": "Injuries in Artistic Gymnastics: Etiology, Prevention Strategies, and Multifactorial Perspectives-A Systematic Review.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41303413/",
+      "publication_type": "Journal Article; Systematic Review",
+      "excerpt": "Artistic gymnastics is one of the most physically demanding sports, characterized by a high incidence of both acute and chronic injuries. Although previous research has primarily focused on biomechanical and training-related factors, the multifactorial etiology of injuries-including molecular and genetic aspects-remains insufficiently explored. This systematic review aimed to synthesize current evidence on the causes, mechanisms, and prevention of injuries in artistic gymnastics, with particular emphasis on biomechanical, molecular, and genetic determinants of injury risk and athletic performance. The review was conducted in accordance with the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) 2020 guidelines and was registered in the PROSPERO database (Registration No: CRD420251167521). Electronic databases (PubMed, KoBSON, and Google Scholar) were searched for studies published between 2015 and 2025 using the keywords \"gymnastics injuries,\" \"overuse injuries,\" \"injury prevention,\" \"biomechanics,\" \"IL-6,\" \"TNF-α,\" and \"miRNA biomarkers.\" Nineteen studies met the inclusion criteria and were analyzed based on injury incidence, localization, mechanisms, and molecular and genetic associations. The majority of injuries were localized in the joints of both upper and lower extremities, particularly during puberty and at higher competitive levels.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sport": [
+          "gymnastics"
+        ]
+      }
+    },
+    {
+      "pmid": "41300761",
+      "title": "Toward a Multi-Trait Genetic Panel Targeting Training, Rehabilitation, and Chronic Disease Prevention: A Narrative Review.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41300761/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Athletic performance results from complex interactions between genetic and environmental factors. This review compiles and synthesizes available literature on polymorphic genes associated with endurance, power, and strength performance, as well as their links to injury susceptibility and chronic metabolic diseases. Endurance performance is modulated by ACE, PPARGC1A, HFE, UCP2, UCP3, CDKN1A, and PPARA, regulating mitochondrial biogenesis, oxygen utilization, and muscle fiber composition. Power performance involves ACTN3, MCT1, IGF1, AMPD1, AGT, and AGTR2, affecting anaerobic metabolism, lactate clearance, and fast-twitch fiber recruitment. Strength performance is influenced by AR, PPARG, ARK2N, MMS22L, LRPPRC, PHACTR1, and MTHFR, related to androgen signaling, muscle hypertrophy, and recovery. Injury-related genes (COL1A1, COL5A1, IL6, VEGFA, NOG) and metabolic risk genes (FTO, PPARG, ADRB3) further highlight the clinical relevance of genomics. Collectively, these insights support the application of genetic information to personalize training, enhance performance, prevent injuries, and guide exercise interventions to mitigate metabolic disease risk.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41296289",
+      "title": "ACTN3 c.1729C>T Polymorphism Might Not Be a Standalone Factor in Non-contact Musculoskeletal Injury: A Systematic Review and Meta-analysis.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41296289/",
+      "publication_type": "Journal Article; Systematic Review; Meta-Analysis",
+      "excerpt": "Ten studies examining the association of the ACTN3 gene with the epidemiological characteristics of musculoskeletal injuries were included in the qualitative and quantitative synthesis (1169 subjects) and were analyzed for genotype, allele, dominant and recessive models in injury incidence, severity, sex bias, and sport modality.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "1169"
+        ]
+      }
+    },
+    {
+      "pmid": "41239413",
+      "title": "Adverse childhood experiences, and violence and criminal justice outcomes in adulthood-the moderating role of protective and compensatory childhood experiences.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41239413/",
+      "publication_type": "Journal Article",
+      "excerpt": "Globally, there is substantial evidence on the association between adverse childhood experiences (ACEs) and violence and criminal justice exposure. However, emerging research suggests that protective and compensatory childhood experiences (PACEs) may moderate these associations. This study aims to examine the contributing role of PACEs in mitigating the association between ACEs, and violence victimisation and criminal justice exposure in adulthood. A cross-sectional representative household survey of adults in a region of the UK examined exposure to ACEs and violence victimisation in adulthood and criminal justice exposure (arrested/incarcerated). Three PACE measures were included: trusted adult, trusted friend, and engagement in extra-curricular activities (e.g. sports teams). Analyses used chi-squared and binary logistic regression. The odds of experiencing violence or being arrested/incarcerated were higher as ACE count increased, both with and without a trusted adult or friend; however, odds were higher in those without a trusted adult or friend compared to those with a trusted adult or friend across nearly all ACE count categories (e.g. adjusted prevalence of violence victimisation amongst those with 4 + ACEs and no trusted adult, 72% vs. 4 + ACEs with a trusted adult, 53%).",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41186296",
+      "title": "Impact of adverse childhood experiences on concussion recovery: Findings from the Toronto concussion study.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41186296/",
+      "publication_type": "Journal Article",
+      "excerpt": "This study investigated whether exposure to adverse childhood experiences (ACEs) were correlated with the duration or severity of post-concussion symptoms. Participants referred to The Hull-Ellis Concussion and Research Clinic within 1 week of injury were followed for up to 16 weeks. Recovery from concussion was determined by a physician assessment of physical, cognitive, and sensory functioning. Symptom endorsement was quantified using the Sports Concussion Assessment Tool 3 (SCAT3) and ACEs with the ACE Questionnaire. Data from 256 participants were analyzed. There was no significant relationship between ACE scores and time to recovery (ρ = 0.18, p = 0.81). However, secondary analyses found significant associations at week 1 between ACEs and SCAT symptoms and severity (ρ = 0.18, p = 0.004; ρ = 0.19, p = 0.002). Exposure to ACEs may sensitize individuals to concussion symptom endorsement in the acute stages but do not appear to prolong recovery from concussion. These findings support that clinicians should be aware of the impact of childhood traumas on an individual's health and assist in tailoring and providing individualized treatment plans, education and resources post-concussion.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_size": [
+          "256"
+        ]
+      }
+    },
+    {
+      "pmid": "41149480",
+      "title": "Baseline Characteristics of Individuals with Metastatic Cancer Enrolled in the Alberta Cancer Exercise Study and 12-Week Findings for Symptom-Related and Physical Fitness Measures.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41149480/",
+      "publication_type": "Journal Article",
+      "excerpt": "Exercise has been found to be safe and beneficial for people with advanced cancers, but more research is needed to understand how best to design and implement exercise programming. The Alberta Cancer Exercise (ACE) study examines the effectiveness and implementation of a 12-week community-based exercise program in Alberta, Canada, for people diagnosed with cancer. Here, we describe the characteristics of individuals with metastatic cancer enrolled in the ACE program and report 12-week changes in self-reported and objective outcomes. Of 306 participants, 274 (89.5%) completed the 12-week study. Many participants were female (65.4%), with ≥1 comorbidity (71.9%), and on active cancer treatment (74.8%). Common cancer types included breast (33.7%), genitourinary (16.7%), and digestive (15.0%). Frequent sites of metastasis were bone (44.8%), liver (28.8%), and lung (25.8%). The mean exercise attendance rate was 73.6%. One exercise-related adverse event (0.3%) and one non-exercise-related adverse event (0.3%) occurred, both in individuals with brain metastases. Participants demonstrated strong interest and engagement in exercise, with significant improvements in weekly physical activity, symptoms, quality of life, and physical fitness.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "306"
+        ]
+      }
+    },
+    {
+      "pmid": "41143879",
+      "title": "Molecular signatures of sprint, strength, and power performance: Integrating genetic, epigenetic, transcriptomic, and telomeric evidence.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41143879/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Recent advances in sports genomics and epigenetics have significantly enhanced our understanding of the biological underpinnings of sprint, strength, and power performance. While genetic predisposition influences muscle fiber composition, contractile speed, and neuromuscular efficiency, epigenetic mechanisms are increasingly recognized for their role in modulating gene expression in response to training and environmental stimuli. In this narrative review, we synthesize current findings on key genetic variants, including polymorphisms in ACTN3 (R577X), ACE, and AMPD1, which have been associated with muscle hypertrophy, anaerobic capacity, and explosive strength. Genome-wide association studies (GWAS) and candidate gene approaches have identified over 150 polymorphisms relevant to power-oriented sports, with ACTN3 R577X emerging as a strong predictor of sprinting ability. However, interindividual variability in performance cannot be explained by genetics alone. Epigenetic modifications-such as DNA methylation, histone acetylation, and microRNA (miRNA) activity-regulate skeletal muscle plasticity, recovery, and adaptation. Notably, miRNAs act as key post-transcriptional regulators, influencing pathways involved in oxidative metabolism and neuromuscular remodeling. Furthermore, telomere biology has emerged as a complementary factor, with telomere length serving as a biomarker of biological aging and regenerative capacity, particularly relevant to high-intensity, power-based sports.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41134938",
+      "title": "The role of genetic and epigenetic factors in sports-related muscle, bone, and brain injuries.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41134938/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Understanding how genetic and epigenetic factors influence predisposition, susceptibility, protection, severity, and recovery potential in sports-related muscle, bone, and brain injuries is gaining increasing attention, as these injuries represent a major concern for athletes' health and performance. This narrative review explores the role of specific genetic variants, such as those in ACE, ACTN3, AMPD1, VDR, and APOE, in predisposing athletes to injury. In parallel, the emerging role of microRNAs, including miR-21, miR-133a, miR-208a, and miR-214 in regulating gene expression related to muscle regeneration, inflammation, and neuroprotection, is highlighted. These small noncoding RNAs are influenced by environmental stimuli such as sports activity and training, and may serve as promising biomarkers for injury risk and recovery. This review is based on a narrative approach, involving targeted literature searches in databases such as PubMed, Scopus, and Web of Science, with no restrictions on language or publication date. Articles were selected based on relevance using predefined keywords and were categorized by injury type (muscular, bone, and concussion-related). However, several limitations remain, including population heterogeneity, small sample sizes, and the lack of functional validation of identified variants, which currently limits their clinical application.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41082915",
+      "title": "Total Genotype Score Relates to Playing Time and Starter Role in Football: a Pilot Study﻿.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41082915/",
+      "publication_type": "Journal Article",
+      "excerpt": "The aims of this research were to identify the relationships between the total genotype score and the total competition time as well as the total and relative distances covered during competition at different speed thresholds and to examine the probability of being a starter or a non-starter based on the total genotype score. A prospective pilot study was conducted with 34 professional male football players competing in the Spanish second division across three consecutive seasons. DNA samples were genotyped for six muscle performance-related polymorphisms, and the total genotype score values were calculated. The total competition time and competition distances at different speed thresholds were evaluated. A total genotype score threshold of 75.0 a.u. discriminated starters with an area under the curve of 0.689. Players with higher total genotype scores (total genotype scores: >75.0) accumulated more matches played (p=0.002), more matches played as starters (p=0.009), greater playing time (p=0.009), and higher total distances covered (p=0.009). Players above this threshold were five times more likely to be starters (odds ratio=5.00, 95% confidence interval: 1.31-19.07, and p=0.030).",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "34"
+        ],
+        "sport": [
+          "football"
+        ]
+      }
+    },
+    {
+      "pmid": "41079762",
+      "title": "The Anterior Cartilage Edge of the Lateral Femoral Condyle Medial Wall is a Useful Landmark to Avoid Tunnel Convergence in Anterior Cruciate Ligament Reconstruction With Lateral Extra-Articular Tenodesis.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41079762/",
+      "publication_type": "Journal Article",
+      "excerpt": "The possibility and utility of using the anterior cartilage edge (ACE) of the lateral femoral condyle medial wall as an intra-articular landmark of the LET tunnel exit were analyzed in 60 knees grouped by ACL tunnel diameter: the 7-mm group (n = 20); the 8-mm group (n = 20); and the 9-mm group (n = 20).",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "group"
+        ],
+        "study_period": []
+      }
+    },
+    {
+      "pmid": "41049335",
+      "title": "Neurohumoral Dysregulation in Acute Myocardial Infarction With Chronic Kidney Disease: Implications for Prognosis and Management.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41049335/",
+      "publication_type": "Journal Article",
+      "excerpt": "Background Acute myocardial infarction (AMI) and chronic kidney disease (CKD) often coexist, and both are associated with neurohumoral imbalances that may worsen cardiovascular outcomes. Reduced kidney function can contribute to arterial stiffness and activation of the renin-angiotensin-aldosterone system (RAAS), which promotes vasoconstriction, sodium and water retention, myocardial remodeling, and fibrosis, mechanisms that exacerbate both cardiac and renal dysfunction. Endothelial injury is also common in these patients, and von Willebrand factor (vWF) serves as a recognized marker of endothelial dysfunction, contributing to thrombotic risk and microvascular impairment. Objective To explore the cross-sectional associations between renal function and the biomarkers aldosterone, angiotensin-converting enzyme (ACE), atrial natriuretic peptide (ANP), and vWF in patients with AMI and heart failure. Methods In this cross-sectional study, 106 patients hospitalized for AMI and heart failure were stratified by estimated glomerular filtration rate (GFR) into Group 1 (≤90 mL/min) and Group 2 (>90 mL/min). While CKD is conventionally defined as GFR <60 mL/min, the ≤90 mL/min cutoff was chosen to evaluate biomarker variation across a broader renal function range, including early decline. All eligible patients from the study period were included; no formal power calculation was performed.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "106"
+        ]
+      }
+    },
+    {
+      "pmid": "41010024",
+      "title": "Physical Performance and Sports Genetics: A Systematic Review of Candidate Gene Polymorphisms Involved in Team Sports.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41010024/",
+      "publication_type": "Systematic Review; Journal Article",
+      "excerpt": "Background/Objectives: This systematic review aimed to gather the most recent evidence regarding the link between genetic polymorphisms and physical performance in team sports, with a focus on the practical utility of this information for athlete selection, training personalization, and injury prevention. Methods: Sixteen studies published between 2018 and 2025 were analyzed and selected from six international databases, in accordance with the PRISMA guideline. Only English-language studies were included, which evaluated active athletes in team sports and investigated associations between genetic variations, such as Actinin Alpha 3 (ACTN3 R577X), Angiotensin I Converting Enzyme (ACE I/D), Peroxisome Proliferator-Activated Receptor Alpha (PPARA), Interleukin 6 (IL6), and Nitric Oxide Synthase 3 (NOS3), and physical performance parameters. The methodological quality of the studies was assessed using the Q-Genie tool, with all studies scoring over 45 across all 11 items, indicating high quality. Results: The ACTN3 and ACE genes stood out due to their consistent association with traits such as strength, speed, endurance, and recovery capacity. Other genes, such as PPARA, Fatty Acid Amide Hydrolase (FAAH), Angiotensinogen (AGT), and NOS3, complemented this genetic profile by being involved in the regulation of energy metabolism and injury predisposition.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41010021",
+      "title": "The ACTN3 R577X Nonsense Allele Is Underrepresented in Professional Volleyball Players and Associated with an Increased Risk of Muscle Injury in Female Players.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41010021/",
+      "publication_type": "Journal Article",
+      "excerpt": "Muscle injuries pose a significant challenge in sports, leading to decreased performance and shortened career longevity. Individuals homozygous for the nonsense X allele of the ACTN3 rs1815739 (R577X) polymorphism, characterized by a complete absence of α-actinin-3, have been associated with reduced power performance and may have an increased injury risk. This study aimed to investigate the association between the ACTN3 R577X polymorphism and both volleyball player status and the risk of non-contact musculoskeletal injuries in female volleyball players. The study included 5382 Turkish and Russian subjects of European descent (187 professional volleyball players and 5195 controls), of whom 50 female players provided injury data. Sport-related injury information was obtained from medical records maintained by team physicians and physiotherapists. A pooled analysis of the two cohorts demonstrated that the frequency of the ACTN3 X allele was significantly lower in volleyball players than in controls, with an odds ratio of 0.763 (95% CI: 0.61-0.95, p = 0.02). In the pre-specified recessive contrast (XX vs.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_size": [
+          "5382"
+        ],
+        "sample_groups": [
+          "187",
+          "5195",
+          "50"
+        ],
+        "sport": [
+          "volleyball"
+        ],
+        "ethnicity": [
+          "Turkish",
+          "Russian"
+        ]
+      }
+    },
+    {
+      "pmid": "41009985",
+      "title": "Effect Size and Replicability in Genetic Studies of Athletic Performance: A Meta-Analytical Review.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41009985/",
+      "publication_type": "Journal Article; Meta-Analysis; Review",
+      "excerpt": "This meta-analytical review assesses the relationship between effect size and replication success in genetic studies of athletic performance, focusing on the ACTN3 and ACE polymorphisms across power- and endurance-based sports. The analysis revealed substantial heterogeneity in reported effect sizes (overall I2 = 72.3%), indicating considerable variability between studies, likely influenced by differences in population genetics, study design, and sample size. For ACTN3, the pooled effect sizes were 1.40 (95% CI: 1.18-1.65) for power sports and 1.35 (95% CI: 1.12-1.58) for endurance sports. Although the difference between these estimates is small, it reached statistical significance (p = 0.0237), reflecting the large sample size, but it remains of limited practical and clinical significance. For the ACE polymorphism, effect sizes were similar in both endurance (ES = 1.22, 95% CI: 1.05-1.41) and power sports (ES = 1.20, 95% CI: 1.03-1.43), with overlapping confidence intervals, indicating no meaningful difference in association strength between sport types. Effect sizes were calculated as odds ratios (OR) with 95% confidence intervals for case-control designs, with standardized conversion protocols applied for alternative study designs reporting standardized mean differences or regression coefficients.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "41007499",
+      "title": "Association of DRD2 and BDNF Genetic Polymorphisms with Exercise Addiction.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41007499/",
+      "publication_type": "Journal Article; Research Support, Non-U.S. Gov't",
+      "excerpt": "Exercise addiction is described in the literature as a compulsive behavior associated with adverse health symptoms. Currently, knowledge about the biological and social factors that trigger the development of this behavior is still lacking, and there are no published studies on genetic variants associated with the disorder. Because of this, we genotyped specific polymorphisms in the genes DRD1 (rs265981), DRD2 (rs1800497), BDNF (rs6265), HFE (rs1799945), ACTN3 (rs1815739), PPARA (rs4253778), PPARGC1A (rs8192678), and AMPD1 (rs17602729) to investigate whether they were associated with exercise addiction. In total, 469 men and women, comprising athletes and non-athletes between the ages of 18 and 50, were enrolled in the study. Each participant provided an oral swab sample for genetic analysis and completed the Negative Addiction Scale questionnaire that tests for physical exercise addiction. For the DRD2 polymorphism, there was a significant association of the GG genotype with asymptomatic participants and of the AA genotype with participants symptomatic for exercise addiction. Additionally, for the BDNF polymorphism, the CC genotype was associated with symptomatic participants, and the T allele was associated with asymptomatic individuals.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "469"
+        ],
+        "age": [
+          "18",
+          "50"
+        ],
+        "pa_level": [
+          "questionnaire"
+        ]
+      }
+    },
+    {
+      "pmid": "41003637",
+      "title": "The ACTN-3 c.1729C>T (rs1815739) Polymorphism Is Associated with Match-Play Maximal Running Speed in Elite Football Players: A Preliminary Report.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41003637/",
+      "publication_type": "Journal Article",
+      "excerpt": "The TT genotype of the ACTN-3 polymorphism (rs1815739) has been previously associated with lower sprinting and jumping performance, higher frequency and severity of muscle injuries and eccentric muscle damage in professional football players. This study examined the influence of rs1815739 polymorphism on maximal running speed (MRS) during official matches in elite football players. MRS was collected, using a Global Position System (GPS) at high sampling frequencies (50 Hz), from 45 footballers of the same team during 26 official matches (707 match observations). A buccal swab was used to extract genomic DNA, and an RFLP PCR technique was used to determine the ACTN-3 genotype. The main finding of the present study was that CC players showed significantly higher MRS than TT players (CC = 33.1 ± 1.3 km·h-1; CT = 32.7 ± 1.6 km·h-1; TT = 31.5 ± 1.9 km·h-1, p = 0.041). Moreover, the players harboring a copy of the C allele showed a trend toward higher MRS than TT genotype (CC + CT = 32.9 ± 1.5 km·h-1 vs. TT = 31.5 ± 1.9 km·h-1, p = 0.06).",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_size": [
+          "45"
+        ],
+        "sport": [
+          "football"
+        ],
+        "pa_level": [
+          "GPS"
+        ]
+      }
+    },
+    {
+      "pmid": "40957261",
+      "title": "Development and validation of general urine screening method for performance enhancing drugs in racehorses utilizing liquid chromatography-high resolution mass spectrometry (LC-HRMS).",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40957261/",
+      "publication_type": "Journal Article",
+      "excerpt": "The complexity of the drug market and the constant updating of drugs have been challenging issues for drug regulatory authorities. In this manuscript, a high-throughput automated assay based on Liquid Chromatography High Resolution Mass Spectrometry (LC-HRMS) suitable for use as an initial testing procedure covering multiple classes of compounds prohibited in horse racing is described. The assay requires a 250-μL urine aliquot, which is subjected to enzymatic hydrolysis followed by Biotage Isolute supported liquid extraction plates using Biotage Extrahera system, evaporation, and reconstitution in a 96-well collection plate. LC-HRMS analyses were carried out on a Thermo Fisher Q-Exactive Mass spectrometer (equipped with HESI source interface) coupled with Vanquish UHPLC system linked to ACE Excel column. Drug targets were identified by retention time and accurate mass, with a mass tolerance window of +/- 5 ppm. The screening method was validated for over 250 drug targets and/or their metabolites in a 7-min run. Validation data including sensitivity, specificity, extraction recovery and precision are presented. As the method employs full-scan mass spectrometry, an unlimited number of drug targets can theoretically be incorporated.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "40897362",
+      "title": "Angiotensin-converting enzyme and exercise adaptations: Genetic variability, pharmacological modulation and future directions.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40897362/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Individual responses to exercise training vary widely, shaping athletic performance, rehabilitation outcomes and long‑term health trajectories. This review synthesizes evidence on how angiotensin-converting enzyme (ACE) activity, influenced by genetic variation, epigenetic regulation and pharmacological modulation, shapes adaptations in skeletal muscle hypertrophy, cardiac remodelling, erythropoiesis, endurance capacity and injury susceptibility. We highlight ACE's nuanced role, showing that pharmacological inhibition selectively attenuates cardiac and haematological adaptations, such as haemoglobin mass and lean body mass, without affecting peripheral muscle adaptations and aerobic performance. Additionally, exercise itself modulates ACE expression and the broader renin-angiotensin system signalling network in a context-dependent manner, complicating genotype-phenotype interactions. Future research should move decisively beyond genotype-based stratification and prioritize direct phenotyping of ACE activity, together with comprehensive profiling of the entire renin-angiotensin system axis, as genotype alone poorly predicts enzyme levels or downstream signalling. More broadly, ACE inhibition serves as a mechanistic model for systematically investigating biological pathways underlying individual variability in training responses, advancing precision exercise medicine.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "40877141",
+      "title": "Complementary and Alternative Medicine (CAM) Use in Patients Undergoing Radiotherapy: Sex-specific Prevalence and Associations of Use Based on the S3 Guideline Complementary Medicine in Oncology Questionnaire.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40877141/",
+      "publication_type": "Journal Article",
+      "excerpt": "This study aimed to assess the sex-specific prevalence and patterns of complementary and alternative medicine (CAM) use in patients undergoing radiotherapy, using the standardized questionnaire developed as part of the S3 Guideline on Complementary Medicine in Oncology. Between August and December 2022, 112 out of 697 eligible cancer patients receiving radiotherapy were prospectively enrolled and completed a structured questionnaire assessing CAM use. The questionnaire included 38 CAM methods classified according to their potential for interactions. Female participants generally used more CAM methods than male participants (median methods: 3 vs. 1, p<0.001). The most frequently used CAM methods were vitamin D (46.4%), sports/exercise (33%) and vitamin A/C/E or beta-carotene (25%). At least one of the listed CAM methods was used by 79.5%. At least three of the listed CAM methods were used by 52 (46.4%) patients. Thirty-six (32.1%) and 54 (48.2%) patients used CAM methods with known or potential interactions, while 76 (67.9%) used methods with no known interactions. In addition, a higher number of female patients used uncertain methods or medications compared to males (p=0.022). The desire for counseling was very similar between both sexes, with no significant difference (p=0.973).",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "study_period": [
+          "2022"
+        ]
+      }
+    },
+    {
+      "pmid": "40867906",
+      "title": "Bioactivities Derived from Dry-Cured Ham Peptides: A Review.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40867906/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "Dry-cured ham is a traditional food in the Mediterranean diet, which, in addition to its sensory qualities, is a natural source of bioactive peptides generated during the curing process through the action of endogenous enzymes on muscle and sarcoplasmic proteins. These low-molecular-weight peptides have attracted growing interest due to their multiple bioactivities, including antihypertensive, antioxidant, antimicrobial, antidiabetic, and anti-inflammatory effects described in vitro, in vivo, and in preliminary human studies. The identification of specific sequences, such as AAPLAP, KPVAAP, and KAAAAP (ACE inhibitors), SNAAC and GKFNV (antioxidants), RHGYM (antimicrobial), and AEEEYPDL and LGVGG (dipeptidyl peptidase-IV and α-glucosidase inhibitors), has been possible thanks to the use of peptidomics techniques, tandem mass spectrometry, and bioinformatics tools that allow their activity to be characterized, their digestive stability to be predicted, and their bioavailability to be evaluated. This review article summarizes current knowledge on the bioactivities of peptides derived from dry-cured ham, advances in their functional characterization, and challenges associated with their application in functional foods and nutraceuticals, with the aim of providing a comprehensive overview of their potential in health promotion and chronic disease prevention.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    },
+    {
+      "pmid": "40845214",
+      "title": "ACTN3 R577X (rs1815739) Polymorphism and Athlete Status: An Additional Case-Control Association Study and Meta-Analysis.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40845214/",
+      "publication_type": "Journal Article; Meta-Analysis",
+      "excerpt": "Chelly, A, Bouzid, A, Kammoun, I, Koubaa, H, Masmoudi, S, Chtourou, H, and Rebai, A. ACTN3 R577X (rs1815739) polymorphism and athlete status: An additional case-control association study and meta-analysis. J Strength Cond Res 39(10): e1233-e1242, 2025-The ACTN3 rs1815739 CC and TT genotypes have been suggested to be associated with power/mixed and endurance performance, respectively. However, results were in general controversial and inconclusive, and data concerning Tunisian athletes have not been established. First, we aimed to inspect the association between the ACTN3 R577X and athletes status using a meta-analysis, and second, to assess its association in Tunisian athletes. Using PubMed, Web of Science, and Scopus, 90 eligible articles (16,439 athletes, 36,349 controls) were found through May 2023. A total of 49 athletes (32 power, 17 mixed) and 49 sedentary healthy controls were recruited to collect blood samples for PCR-RFLP (polymerase chain reaction-restriction fragment length polymorphism). The meta-analysis revealed no significant association between rs1815739 polymorphism and endurance performance (odds ratio [OR] = 0.95; 95% confidence interval [CI] [0.86-1.04]).",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "49",
+          "32",
+          "17"
+        ],
+        "sample_size": [
+          "49",
+          "controls"
+        ]
+      }
+    },
+    {
+      "pmid": "40795653",
+      "title": "Evaluation of neurotoxicity of neonicotinoid insecticides using lipidomics.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40795653/",
+      "publication_type": "Journal Article",
+      "excerpt": "This study uses lipidomics to analyze the cerebral cortex of mice exposed to the NN acetamiprid (ACE), aiming to identify lipid biomarkers of neurotoxicity. Thirty 12-week-old male C57BL/6J mice were randomly divided into control (0 mg/kg), low dose (65 mg/kg), and high dose (130 mg/kg) groups, with 10 mice in each group.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_groups": [
+          "10"
+        ]
+      }
+    },
+    {
+      "pmid": "40772482",
+      "title": "Structural-Functional Characterization and Bioactive Potential of Alternative Grain Proteins: An In-Depth Comparison of Quinoa and Oat Proteins Isolates.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40772482/",
+      "publication_type": "Journal Article; Comparative Study",
+      "excerpt": "The growing preference for plant-based proteins has led to increased interest in quinoa and oat as vital sources of plant-derived proteins. This study conducted a comprehensive characterization of two quinoa protein isolates (QJP1 and QJP3) and two oat protein isolates (OBP3 and OPP4). Results showed that quinoa protein, particularly QJP1, was found to be rich in lysine and, compared with oat protein isolates, exhibited potent antioxidant properties, making it an ideal choice for vegetarians, vegans, and the elderly who require plant-based sources of essential amino acids and antioxidants. On the other hand, oat proteins, especially OPP4, showed a higher digestibility rate and a variety of differentially expressed proteins with potential health benefits, suggesting they may be particularly beneficial for consumers seeking rapid nutrient absorption, such as athletes. The study also highlighted the presence of common proteins within different quinoa and oat cultivars, indicating a high degree of similarity in their protein compositions. However, the unique protein profiles of QJP3 and OBP3 suggests that they may be more suitable for elderly populations with specific health concerns, such as hypertension and immune function.",
+      "topic_expected": false,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "sample_size": []
+      }
+    },
+    {
+      "pmid": "40724525",
+      "title": "Next-Generation Approaches in Sports Medicine: The Role of Genetics, Omics, and Digital Health in Optimizing Athlete Performance and Longevity-A Narrative Review.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40724525/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "This review aims to provide a comprehensive framework for implementing precision sports medicine, integrating genetics, pharmacogenomics, digital health solutions, and multi-omics data. Literature review was conducted using MEDLINE, EMBASE, Web of Science, and Cochrane Library databases (January 2018-April 2024), focusing on precision medicine applications in sports medicine, utilizing key terms including \"precision medicine\", \"sports medicine\", \"genetics\", and \"multi-omics\", with forward and backward citation tracking. The review identified key gene variants affecting athletic performance: endurance (AMPD1, PPARGC1A), power (ACTN3, NOS3), strength (PPARG), and injury susceptibility (COL5A1, MMP3), while also examining inherited conditions like cardiomyopathies (MYH7, MYBPC3). Pharmacogenomic guidelines were established for optimizing common sports medications, including NSAIDs (CYP2C9), opioids (CYP2D6), and cardiovascular drugs (SLCO1B1, CYP2C19). Digital health technologies, including wearables and predictive analytics, showed potential for enhanced athlete monitoring and injury prevention, while multi-omics approaches integrated various molecular data to understand exercise capacity and injury predisposition, enabling personalized assessments, training regimens, and therapeutic interventions based on individual biomolecular profiles. This review provides sports medicine professionals with a framework to deliver personalized care tailored to each athlete's unique profile, promising optimized performance, reduced injury risks, and improved recovery outcomes.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": [],
+        "study_period": []
+      }
+    },
+    {
+      "pmid": "40710772",
+      "title": "Exercise Intervention in Autonomic Function, Immunity, and Cardiovascular Health: A Precision Medicine Approach.",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/40710772/",
+      "publication_type": "Journal Article; Review",
+      "excerpt": "The imbalance in the interaction between the autonomic nervous system and the immune system serves as a central mechanism in the onset and progression of cardiovascular diseases. The excessive activation of the sympathetic nervous system and suppression of vagal function contribute to chronic inflammation and cardiac remodeling. Precision medicine, by integrating multidimensional data such as genomics and metabolomics, offers a novel perspective for the personalized design of exercise interventions. This systematic review explores the bidirectional regulatory mechanisms of exercise interventions on the autonomic nervous system-immune axis and examines the potential applications of precision medicine in optimizing exercise prescriptions and clinical translation. Exercise significantly improves cardiovascular function through immunometabolic reprogramming, which includes suppressing sympathetic overactivity, enhancing vagal tone, and modulating the IL-6/IL-10 balance, as well as activating the short-chain fatty acid (SCFA)-Treg axis. Moreover, precision-medicine-driven ACE I/D gene typing provides a basis for selecting tailored exercise prescriptions, thereby significantly enhancing the efficacy of exercise interventions. By leveraging a multi-tiered \"neuro-immune-metabolic\" regulatory framework, exercise interventions contribute to improved cardiovascular health.",
+      "topic_expected": true,
+      "expect": {
+        "hwe": [],
+        "data_links": []
+      }
+    }
+  ]
+}

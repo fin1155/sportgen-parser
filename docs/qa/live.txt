@@ -1,0 +1,19 @@
+PASS PubMed returns a bounded live result
+PASS PubMed result has identifiers and titles
+PASS OpenAlex returns strictly filtered Russian/Russian-affiliated works
+PASS Every OpenAlex row passes genetics AND sport/activity filter
+PASS PubMed applies the requested publication-year range
+PASS OpenAlex applies the requested publication-year range
+PASS Crossref resolves a known DOI
+PASS PMC full text is downloaded and split into sections
+PASS Live PMC text populates multiple target fields
+PASS An OpenAlex-linked open full text is readable
+SKIP Elsevier live API - ELSEVIER_API_KEY is not set
+Warning message:
+Elsevier: задайте ELSEVIER_API_KEY
+PASS Complete pipeline merges every enabled available source
+PASS Pipeline writes a machine-readable run report
+PASS CSV export is readable
+PASS XLSX export is readable
+
+LIVE RESULT 14 passed; 0 failed; 1 skipped

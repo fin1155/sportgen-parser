@@ -28,6 +28,10 @@ jobs:
         run: Rscript -e "parse('app.R')"
       - name: Run offline tests
         run: Rscript tests/run_tests.R
+      - name: Check annotated source corpus
+        run: Rscript tests/validate_corpus.R
+      - name: Check review and archive server flows
+        run: Rscript tests/server_flow.R
 
   docker-smoke:
     runs-on: ubuntu-latest

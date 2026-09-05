@@ -10,7 +10,10 @@ source(file.path(ROOT, "src", "03_openalex.R"))
 source(file.path(ROOT, "src", "03_crossref.R"))
 source(file.path(ROOT, "src", "04_merge_export.R"))
 source(file.path(ROOT, "src", "05_pmc_fulltext.R"))
+source(file.path(ROOT, "src", "05b_extraction.R"))
+source(file.path(ROOT, "src", "05c_documents.R"))
 source(file.path(ROOT, "src", "06_pipeline.R"))
+source(file.path(ROOT, "src", "07_evidence_archive.R"))
 
 passed <- 0L
 failed <- 0L
@@ -59,6 +62,7 @@ check_error("Publication year range rejects reversed bounds",
 
 expected_table_columns <- c(
   "source", ARTICLE_COLS, "gene", "snp", ENRICH_COLS,
+  "article_id", "text_source", "missing_fields", "evidence_profile", "evidence_reasons",
   "extraction_confidence", "extraction_evidence"
 )
 check_equal("Column customizer covers every exported field",
@@ -202,8 +206,8 @@ check_equal("Sample size extraction", fields$sample_size, "196")
 check_equal("Sex extraction", fields$sex, "M=143, F=53")
 check_equal("Mean age extraction", fields$age, "42.5 ± 11.4")
 check_equal("HWE violation is distinguished", fields$hwe, "нарушено")
-check("Results come from Results section", grepl("β=-47.7", fields$results, fixed = TRUE))
-check("Structured evidence has confidence", identical(attr(fields, "confidence"), 0.8))
+check("Results come from Results section", grepl("-47.7", fields$results, fixed = TRUE) && !grepl("N=999", fields$results, fixed = TRUE))
+check("Extraction does not claim a calibrated probability", identical(attr(fields, "confidence"), "требует проверки"))
 hwe_qc <- extract_detail_fields("SNPs were excluded if they deviated from Hardy-Weinberg equilibrium.")
 check_equal("HWE quality-control exclusion is not reported as a sample violation",
             hwe_qc$hwe, "проверено (отклонения исключены)")
@@ -308,7 +312,7 @@ check("Web interface exposes the column customizer and presets",
       all(vapply(column_ui_markers,
                  function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
 check("Results table and both downloads use the selected columns",
-      length(gregexpr("visible_result_data()", app_text, fixed = TRUE)[[1]]) >= 3)
+      grepl("write_research_workbook(result_data(), file, selected_columns())", app_text, fixed = TRUE) && grepl("readr::write_csv(visible_result_data()", app_text, fixed = TRUE))
 check("Column order can be changed by dragging selected fields",
       grepl('plugins = list("remove_button", "drag_drop")', app_text, fixed = TRUE))
 check("Removing every field restores the core preset",
@@ -347,6 +351,8 @@ check("Web layout prevents fixed-width inputs and columns from overflowing",
 manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
 check("Connect Cloud manifest targets a supported Shiny runtime",
       identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))
+
+source(file.path(ROOT, "tests", "regression_tz.R"))
 
 cat("\nRESULT", passed, "passed;", failed, "failed\n")
 if (failed > 0) quit(status = 1)

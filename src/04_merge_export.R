@@ -14,19 +14,18 @@ extract_snp <- function(text) {
 extract_gene <- function(text, candidates) {
   if (is.na(text) || !nzchar(text)) return("")
   if (is.null(candidates) || length(candidates) == 0) return("")
+  text <- gsub("\\bACTN-3\\b", "ACTN3", text, perl = TRUE)
   token_matches <- gregexpr("[A-Za-z][A-Za-z0-9-]*", text, perl = TRUE)
   tokens <- regmatches(text, token_matches)[[1]]
   if (length(tokens) == 0) return("")
   starts <- token_matches[[1]]
   lengths <- attr(starts, "match.length")
-  always_match <- attr(candidates, "always_match") %||% character(0)
   candidates <- unique(toupper(as.character(candidates)))
   # HGNC-символы в научных текстах регистрозависимы. Это защищает от
   # ложных совпадений с обычными словами вроде WAS, CAT или MET.
   possible <- candidates[candidates %in% unique(tokens)]
-  context_pattern <- "\\b(gene|genes|genetic|genotype|variant|variants|polymorphism|polymorphisms|SNP|rs[0-9]+)\\b"
+  context_pattern <- "\\b(gene|genes|genetic|genotype|genotypes|allele|alleles|variant|variants|polymorphism|polymorphisms|SNP|rs[0-9]+|ген[[:alpha:]]*|аллел[[:alpha:]]*|полиморф[[:alpha:]]*)\\b"
   keep <- vapply(possible, function(symbol) {
-    if (symbol %in% always_match) return(TRUE)
     positions <- which(tokens == symbol)
     any(vapply(positions, function(index) {
       left <- max(1, starts[index] - 50)
@@ -34,7 +33,7 @@ extract_gene <- function(text, candidates) {
       grepl(context_pattern, substr(text, left, right), ignore.case = TRUE, perl = TRUE)
     }, logical(1)))
   }, logical(1))
-  hits <- possible[keep]
+  hits <- sort(possible[keep])
   paste(hits, collapse = ", ")
 }
 
@@ -45,13 +44,23 @@ deduplicate_articles <- function(df) {
   title <- tolower(trimws(ifelse(is.na(df$title), "", df$title)))
   title <- gsub("[^[:alnum:]]+", " ", title)
   title <- normalize_space(title)
-  keys <- ifelse(nzchar(doi), paste0("doi:", doi),
-                 ifelse(nzchar(pmid), paste0("pmid:", pmid),
-                        ifelse(nzchar(title), paste0("title:", title),
-                               paste0("row:", seq_len(nrow(df))))))
-  if (!anyDuplicated(keys)) return(df)
-
-  groups <- lapply(unique(keys), function(key) which(keys == key))
+  # Strong identifiers first, then unambiguous title matches. Never merge two
+  # different nonempty DOI/PMID sets through a weak title-only bridge.
+  parent <- seq_len(nrow(df))
+  root <- function(i) { while (parent[i] != i) i <- parent[i]; i }
+  for (values in list(doi, pmid, title)) {
+    for (value in unique(values[nzchar(values)])) {
+      indices <- which(values == value)
+      roots <- unique(vapply(indices, root, integer(1)))
+      if (length(roots) < 2) next
+      members <- which(vapply(seq_len(nrow(df)), root, integer(1)) %in% roots)
+      if (length(unique(doi[members][nzchar(doi[members])])) > 1L ||
+          length(unique(pmid[members][nzchar(pmid[members])])) > 1L) next
+      parent[roots] <- roots[1]
+    }
+  }
+  groups <- split(seq_len(nrow(df)), vapply(seq_len(nrow(df)), root, integer(1)))
+  if (length(groups) == nrow(df)) return(df)
   rows <- lapply(groups, function(index) {
     group <- df[index, , drop = FALSE]
     row <- group[1, , drop = FALSE]
@@ -62,6 +71,9 @@ deduplicate_articles <- function(df) {
       values <- values[!is.na(values) & nzchar(values)]
       if (length(values) == 0) {
         row[[column]] <- ""
+      } else if (column == "fulltext_url") {
+        oa <- which(tolower(group$is_open_access) == "true" & nzchar(group$fulltext_url))
+        row[[column]] <- if (length(oa)) group$fulltext_url[oa[1]] else values[1]
       } else if (column %in% c("title", "abstract")) {
         row[[column]] <- values[which.max(nchar(values))]
       } else {

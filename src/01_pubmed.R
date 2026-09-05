@@ -128,7 +128,7 @@ load_pubmed <- function(query = NULL, settings = NULL) {
     }
     if (is.null(payload)) {
       warning("PubMed: не удалось загрузить страницу с позиции ", offset, call. = FALSE)
-      next
+      stop("PubMed: загрузка прервана после повторного сбоя страницы ", offset, call. = FALSE)
     }
     page <- parse_pubmed_batch(payload)
     page <- filter_publication_year(page, year_range)

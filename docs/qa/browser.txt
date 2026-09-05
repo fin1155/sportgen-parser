@@ -1,0 +1,11 @@
+2026-09-05, localhost:3839, CUA browser
+PASS: live PubMed query edited, 2 rows returned
+PASS: real article field confirmation and JSON download
+PASS: downloaded JSON re-read, 2 rows and 1 review retained; confirmed N=122 survives reprocessing
+PASS: synthetic JSON imported using visible Browse button
+PASS: ACTN3 / rs1815739 association retained with p < 0.01
+PASS: reviewed value 120 survives UI reprocessing
+PASS: UI change 130 undone to 120
+PASS: CSV and XLSX first sheet contain 13 identical selected columns, 1 row; XLSX 4 sheets
+PASS: no selected sources shows error and re-enables search button
+VISUAL: assistant inspected desktop screenshots; external vision service unavailable, no automated vision pass claimed

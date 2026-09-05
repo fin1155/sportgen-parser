@@ -2650,7 +2650,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "88224fc0620472109de930ebb87719f6"
+      "checksum": "758ddcc1323b1a8b48cae44c07b5a8bf"
     },
     "config/hgnc_symbols.txt": {
       "checksum": "db5abe75c945afd6ed60884188610caa"
@@ -2665,7 +2665,7 @@
       "checksum": "b209b5b3a8afb5cf6201fd9960570cd7"
     },
     "config/settings.json": {
-      "checksum": "e6aac71c23c202de115f8eef49014de8"
+      "checksum": "cdda6510106db3b13e66ff1e7d059ed9"
     },
     "data/sciencedirect_browser.json": {
       "checksum": "8d87905b258bc30ed02d96e225d8187f"
@@ -2674,28 +2674,37 @@
       "checksum": "f994baacbae4836869f63d1bf0c4a75f"
     },
     "src/00_common.R": {
-      "checksum": "ec20394f5e79363ffc4df6820c665f31"
+      "checksum": "660a4498c4cdf2ff39f6e1c2fac6d2c1"
     },
     "src/01_pubmed.R": {
-      "checksum": "e7e05a2fa902cc3601442166ba68e202"
+      "checksum": "91840c7560a15d232280c45f82714a20"
     },
     "src/02_sciencedirect.R": {
-      "checksum": "01ab79c4cc2d856abffa173e6d7e3a86"
+      "checksum": "ffad6d121ddcf93adc5c05192309eaec"
     },
     "src/03_crossref.R": {
-      "checksum": "d3de2cbd67a0ac91b8f52c90a7a0b4b0"
+      "checksum": "2c99561f8c3702590f2fc3c9b41dcded"
     },
     "src/03_openalex.R": {
-      "checksum": "eded8ade38c6393c499fa1b5828d5b8f"
+      "checksum": "9508576f9a91e913eefd46f07310707e"
     },
     "src/04_merge_export.R": {
-      "checksum": "586661400528c38cbac358f2d1c859df"
+      "checksum": "fed8d95bacf213765897e9eac7d49569"
     },
     "src/05_pmc_fulltext.R": {
-      "checksum": "9d7340c604dc68da5c888060a70975a3"
+      "checksum": "3818be1c3452836c670eae0662fc74da"
     },
     "src/06_pipeline.R": {
-      "checksum": "e1f52850f0ecf51043b76a77f9325675"
+      "checksum": "72efb04138a8c9b577520453dfdf5ee8"
+    },
+    "src/05c_documents.R": {
+      "checksum": "8b2cabcca72ca1047dd48f4e63a8e4c8"
+    },
+    "src/05b_extraction.R": {
+      "checksum": "d1d74291f34da119a172a46e95e768f1"
+    },
+    "src/07_evidence_archive.R": {
+      "checksum": "575ecea689cbaf5fb670b5ea04a9c9d3"
     }
   },
   "users": null

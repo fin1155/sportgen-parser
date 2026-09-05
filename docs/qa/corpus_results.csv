@@ -1,0 +1,119 @@
+pmid,field,expected,actual,present_expected,present_actual,correct
+41452715,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41452715,hwe,,,FALSE,FALSE,TRUE
+41452715,data_links,,,FALSE,FALSE,TRUE
+41432190,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41432190,hwe,,,FALSE,FALSE,TRUE
+41432190,data_links,,,FALSE,FALSE,TRUE
+41432190,sport,rowing | judo,"The China-ACE study will be a prospective longitudinal cohort study involving approximately 500 elite athletes of different sexes, ages, and sports (rowing, canoeing, cycling, triathlon, weightlifting, wrestling, judo, swimming, basketball, badminton, boxing, and beach volleyball) from three provincial sports centers.",TRUE,TRUE,TRUE
+41402940,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41402940,hwe,,,FALSE,FALSE,TRUE
+41402940,data_links,,,FALSE,FALSE,TRUE
+41402940,sport,swimming,"This study investigated the in vivo and in silico effects of Streptozotocin-induced DM (STZ-DM) on vascular endothelial functions and cardiac apoptotic markers after swimming exercise. | The exercise groups were put through a structured swimming exercise for 27 days, after which blood samples and hearts were collected for biochemical and cardiac apoptotic marker determination, respectively. | Regular swimming exercise minimized hyperglycemia, reduced angiotensin converting enzyme activity, endothelin-1 levels, and raised nitric oxide level in STZ-Dm + Ex compared with STZ-Dm only group (p < 0.05).",TRUE,TRUE,TRUE
+41391515,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41391515,hwe,,,FALSE,FALSE,TRUE
+41391515,data_links,,,FALSE,FALSE,TRUE
+41316421,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41316421,hwe,,,FALSE,FALSE,TRUE
+41316421,data_links,,,FALSE,FALSE,TRUE
+41316421,sport,tennis,Serving performance is widely recognized as a critical factor influencing match outcomes in professional tennis.,TRUE,TRUE,TRUE
+41303413,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41303413,hwe,,,FALSE,FALSE,TRUE
+41303413,data_links,,,FALSE,FALSE,TRUE
+41303413,sport,gymnastics,"Artistic gymnastics is one of the most physically demanding sports, characterized by a high incidence of both acute and chronic injuries. | This systematic review aimed to synthesize current evidence on the causes, mechanisms, and prevention of injuries in artistic gymnastics, with particular emphasis on biomechanical, molecular, and genetic determinants of injury risk and athletic performance. | Electronic databases (PubMed, KoBSON, and Google Scholar) were searched for studies published between 2015 and 2025 using the keywords ""gymnastics injuries,"" ""overuse injuries,"" ""injury prevention,"" ""biomechanics,"" ""IL-6,"" ""TNF-α,"" and ""miRNA biomarkers."" Nineteen studies met the inclusion criteria and were analyzed based on injury incidence, localization, mechanisms, and molecular and genetic associations.",TRUE,TRUE,TRUE
+41300761,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41300761,hwe,,,FALSE,FALSE,TRUE
+41300761,data_links,,,FALSE,FALSE,TRUE
+41296289,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41296289,hwe,,,FALSE,FALSE,TRUE
+41296289,data_links,,,FALSE,FALSE,TRUE
+41296289,sample_groups,1169,"Ten studies examining the association of the ACTN3 gene with the epidemiological characteristics of musculoskeletal injuries were included in the qualitative and quantitative synthesis (1169 subjects) and were analyzed for genotype, allele, dominant and recessive models in injury incidence, severity, sex bias, and sport modality.",TRUE,TRUE,TRUE
+41239413,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41239413,hwe,,,FALSE,FALSE,TRUE
+41239413,data_links,,,FALSE,FALSE,TRUE
+41186296,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41186296,hwe,,,FALSE,FALSE,TRUE
+41186296,data_links,,,FALSE,FALSE,TRUE
+41186296,sample_size,256,256,TRUE,TRUE,TRUE
+41149480,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41149480,hwe,,,FALSE,FALSE,TRUE
+41149480,data_links,,,FALSE,FALSE,TRUE
+41149480,sample_groups,306,"Of 306 participants, 274 (89.5%) completed the 12-week study. | Many participants were female (65.4%), with ≥1 comorbidity (71.9%), and on active cancer treatment (74.8%). | One exercise-related adverse event (0.3%) and one non-exercise-related adverse event (0.3%) occurred, both in individuals with brain metastases.",TRUE,TRUE,TRUE
+41143879,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41143879,hwe,,,FALSE,FALSE,TRUE
+41143879,data_links,,,FALSE,FALSE,TRUE
+41134938,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41134938,hwe,,,FALSE,FALSE,TRUE
+41134938,data_links,,,FALSE,FALSE,TRUE
+41082915,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41082915,hwe,,,FALSE,FALSE,TRUE
+41082915,data_links,,,FALSE,FALSE,TRUE
+41082915,sample_groups,34,A prospective pilot study was conducted with 34 professional male football players competing in the Spanish second division across three consecutive seasons.,TRUE,TRUE,TRUE
+41082915,sport,football,A prospective pilot study was conducted with 34 professional male football players competing in the Spanish second division across three consecutive seasons.,TRUE,TRUE,TRUE
+41079762,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41079762,hwe,,,FALSE,FALSE,TRUE
+41079762,data_links,,,FALSE,FALSE,TRUE
+41079762,sample_groups,group,The possibility and utility of using the anterior cartilage edge (ACE) of the lateral femoral condyle medial wall as an intra-articular landmark of the LET tunnel exit were analyzed in 60 knees grouped by ACL tunnel diameter: the 7-mm group (n = 20); the 8-mm group (n = 20); and the 9-mm group (n = 20).,TRUE,TRUE,TRUE
+41079762,study_period,,,FALSE,FALSE,TRUE
+41049335,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+41049335,hwe,,,FALSE,FALSE,TRUE
+41049335,data_links,,,FALSE,FALSE,TRUE
+41049335,sample_groups,106,"Methods In this cross-sectional study, 106 patients hospitalized for AMI and heart failure were stratified by estimated glomerular filtration rate (GFR) into Group 1 (≤90 mL/min) and Group 2 (>90 mL/min).",TRUE,TRUE,TRUE
+41010024,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41010024,hwe,,,FALSE,FALSE,TRUE
+41010024,data_links,,,FALSE,FALSE,TRUE
+41010021,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41010021,hwe,,,FALSE,FALSE,TRUE
+41010021,data_links,,,FALSE,FALSE,TRUE
+41010021,sample_size,5382,"The study included 5382 Turkish and Russian subjects of European descent (187 professional volleyball players and 5195 controls), of whom 50 female players provided injury data.",TRUE,TRUE,TRUE
+41010021,sample_groups,187 | 5195 | 50,"This study aimed to investigate the association between the ACTN3 R577X polymorphism and both volleyball player status and the risk of non-contact musculoskeletal injuries in female volleyball players. | The study included 5382 Turkish and Russian subjects of European descent (187 professional volleyball players and 5195 controls), of whom 50 female players provided injury data.",TRUE,TRUE,TRUE
+41010021,sport,volleyball,"This study aimed to investigate the association between the ACTN3 R577X polymorphism and both volleyball player status and the risk of non-contact musculoskeletal injuries in female volleyball players. | The study included 5382 Turkish and Russian subjects of European descent (187 professional volleyball players and 5195 controls), of whom 50 female players provided injury data. | A pooled analysis of the two cohorts demonstrated that the frequency of the ACTN3 X allele was significantly lower in volleyball players than in controls, with an odds ratio of 0.763 (95% CI: 0.61-0.95, p = 0.02).",TRUE,TRUE,TRUE
+41010021,ethnicity,Turkish | Russian,"The study included 5382 Turkish and Russian subjects of European descent (187 professional volleyball players and 5195 controls), of whom 50 female players provided injury data.",TRUE,TRUE,TRUE
+41009985,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41009985,hwe,,,FALSE,FALSE,TRUE
+41009985,data_links,,,FALSE,FALSE,TRUE
+41007499,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41007499,hwe,,,FALSE,FALSE,TRUE
+41007499,data_links,,,FALSE,FALSE,TRUE
+41007499,sample_groups,469,"In total, 469 men and women, comprising athletes and non-athletes between the ages of 18 and 50, were enrolled in the study.",TRUE,TRUE,TRUE
+41007499,age,18 | 50,18–50,TRUE,TRUE,TRUE
+41007499,pa_level,questionnaire,Each participant provided an oral swab sample for genetic analysis and completed the Negative Addiction Scale questionnaire that tests for physical exercise addiction.,TRUE,TRUE,TRUE
+41003637,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+41003637,hwe,,,FALSE,FALSE,TRUE
+41003637,data_links,,,FALSE,FALSE,TRUE
+41003637,sample_size,45,45,TRUE,TRUE,TRUE
+41003637,sport,football,"The TT genotype of the ACTN-3 polymorphism (rs1815739) has been previously associated with lower sprinting and jumping performance, higher frequency and severity of muscle injuries and eccentric muscle damage in professional football players. | This study examined the influence of rs1815739 polymorphism on maximal running speed (MRS) during official matches in elite football players. | MRS was collected, using a Global Position System (GPS) at high sampling frequencies (50 Hz), from 45 footballers of the same team during 26 official matches (707 match observations).",TRUE,TRUE,TRUE
+41003637,pa_level,GPS,"MRS was collected, using a Global Position System (GPS) at high sampling frequencies (50 Hz), from 45 footballers of the same team during 26 official matches (707 match observations).",TRUE,TRUE,TRUE
+40957261,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+40957261,hwe,,,FALSE,FALSE,TRUE
+40957261,data_links,,,FALSE,FALSE,TRUE
+40897362,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+40897362,hwe,,,FALSE,FALSE,TRUE
+40897362,data_links,,,FALSE,FALSE,TRUE
+40877141,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+40877141,hwe,,,FALSE,FALSE,TRUE
+40877141,data_links,,,FALSE,FALSE,TRUE
+40877141,study_period,2022,"Between August and December 2022, 112 out of 697 eligible cancer patients receiving radiotherapy were prospectively enrolled and completed a structured questionnaire assessing CAM use.",TRUE,TRUE,TRUE
+40867906,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+40867906,hwe,,,FALSE,FALSE,TRUE
+40867906,data_links,,,FALSE,FALSE,TRUE
+40845214,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+40845214,hwe,,,FALSE,FALSE,TRUE
+40845214,data_links,,,FALSE,FALSE,TRUE
+40845214,sample_groups,49 | 32 | 17,"ACTN3 R577X (rs1815739) polymorphism and athlete status: An additional case-control association study and meta-analysis. | First, we aimed to inspect the association between the ACTN3 R577X and athletes status using a meta-analysis, and second, to assess its association in Tunisian athletes. | Using PubMed, Web of Science, and Scopus, 90 eligible articles (16,439 athletes, 36,349 controls) were found through May 2023. | A total of 49 athletes (32 power, 17 mixed) and 49 sedentary healthy controls were recruited to collect blood samples for PCR-RFLP (polymerase chain reaction-restriction fragment length polymorphism).",TRUE,TRUE,TRUE
+40845214,sample_size,49 | controls,"A total of 49 athletes (32 power, 17 mixed) and 49 sedentary healthy controls were recruited to collect blood samples for PCR-RFLP (polymerase chain reaction-restriction fragment length polymorphism).",TRUE,TRUE,TRUE
+40795653,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+40795653,hwe,,,FALSE,FALSE,TRUE
+40795653,data_links,,,FALSE,FALSE,TRUE
+40795653,sample_groups,10,"Thirty 12-week-old male C57BL/6J mice were randomly divided into control (0 mg/kg), low dose (65 mg/kg), and high dose (130 mg/kg) groups, with 10 mice in each group.",TRUE,TRUE,TRUE
+40772482,topic,FALSE,FALSE,FALSE,FALSE,TRUE
+40772482,hwe,,,FALSE,FALSE,TRUE
+40772482,data_links,,,FALSE,FALSE,TRUE
+40772482,sample_size,,,FALSE,FALSE,TRUE
+40724525,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+40724525,hwe,,,FALSE,FALSE,TRUE
+40724525,data_links,,,FALSE,FALSE,TRUE
+40724525,study_period,,,FALSE,FALSE,TRUE
+40710772,topic,TRUE,TRUE,TRUE,TRUE,TRUE
+40710772,hwe,,,FALSE,FALSE,TRUE
+40710772,data_links,,,FALSE,FALSE,TRUE
