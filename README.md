@@ -227,7 +227,7 @@ docker compose up --build
 ## Публичное веб-приложение без Docker у пользователей
 
 Обновлённая версия опубликована в Posit Connect Cloud. Основная ветка — `main`;
-публикация выполняется автоматически после push. [Протокол релиза](docs/DEPLOYMENT.md):
+публикация выполняется автоматически после push. [Протокол релиза 2.0](docs/DEPLOYMENT_V2.md):
 
 **[Открыть SportGen Parser](https://01a0453f-1564-0962-c6b3-e0e7a8fbbdb6.share.connect.posit.cloud)**
 
