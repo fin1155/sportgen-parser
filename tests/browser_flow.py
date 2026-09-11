@@ -27,6 +27,11 @@ with sync_playwright() as p:
     page = context.new_page(); page.set_default_timeout(25000)
     errors = []; page.on('pageerror', lambda e: errors.append(str(e)))
     def shot(name):
+        page.wait_for_function('''() => !document.documentElement.classList.contains('shiny-busy')
+          && !Array.from(document.querySelectorAll('.recalculating')).some(el =>
+            el.checkVisibility({checkVisibilityCSS: true}) && el.getBoundingClientRect().height > 0)''')
+        page.evaluate('''async () => { await document.fonts.ready;
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); }''')
         page.screenshot(path=str(out / (name + '.png')), full_page=True)
     def click(locator, name):
         shot(name+'-before'); locator.click(); page.wait_for_timeout(250); shot(name+'-after')
@@ -139,7 +144,13 @@ with sync_playwright() as p:
     page.locator('#selected-column-list').evaluate('(el)=>el.scrollTop=0')
     page.evaluate('window.scrollTo(0,0)');shot('desktop')
     check('Desktop document has no horizontal overflow',page.evaluate('document.documentElement.scrollWidth <= innerWidth'))
-    page.set_viewport_size({'width':390,'height':844});page.evaluate('window.scrollTo(0,0)');shot('mobile')
+    page.set_viewport_size({'width':390,'height':844})
+    page.locator('#column_preview table').scroll_into_view_if_needed()
+    page.wait_for_timeout(500)
+    expect(page.locator('#column_preview th')).to_have_count(len(selected()))
+    shot('mobile-preview-full')
+    page.screenshot(path=str(out/'mobile-preview.png'))
+    page.evaluate('window.scrollTo(0,0)');shot('mobile')
     check('Mobile document has no horizontal overflow',page.evaluate('document.documentElement.scrollWidth <= innerWidth'))
     check('Mobile checkboxes remain usable',page.locator('.column-option:visible').first.bounding_box()['height']>=40)
     tab('Результаты');page.locator('#expand-table').click();shot('mobile-table');page.keyboard.press('Escape')

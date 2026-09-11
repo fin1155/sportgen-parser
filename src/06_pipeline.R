@@ -83,7 +83,7 @@ run_pipeline <- function(settings = NULL, queries = NULL, export = TRUE,
     }
   )
 
-  progress("openalex", "Поиск русскоязычных публикаций")
+  progress("openalex", "Поиск публикаций OpenAlex")
   oa <- tryCatch(
     load_openalex(queries$openalex, settings),
     error = function(e) {
