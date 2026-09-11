@@ -177,10 +177,14 @@ load_openalex <- function(query = NULL, settings = NULL) {
   multiplier <- max(1L, as.integer(config$candidate_multiplier %||% 5L))
   candidate_cap <- min(10000L, max(100L, target * multiplier))
 
-  language_rows <- openalex_stream(
+  scope <- config$scope %||% if (research_profile(settings) == "sports") "russian" else "global"
+  if (!scope %in% c("russian", "global")) stop("Неизвестный охват OpenAlex.")
+  language_rows <- if (scope == "global") openalex_stream(
+    search, openalex_filter_with_year("type:article", year_range), candidate_cap, config, api_key
+  ) else openalex_stream(
     search, openalex_filter_with_year("type:article,language:ru", year_range), candidate_cap, config, api_key
   )
-  affiliation_rows <- openalex_stream(
+  affiliation_rows <- if (scope == "global") openalex_empty_df() else openalex_stream(
     search, openalex_filter_with_year("type:article,authorships.institutions.country_code:ru", year_range),
     candidate_cap, config, api_key
   )
@@ -191,7 +195,7 @@ load_openalex <- function(query = NULL, settings = NULL) {
                        paste0("title:", normalize_title(all$title))))
   all <- all[!duplicated(key), , drop = FALSE]
   text <- paste(all$title, all$abstract, all$mesh, sep = " | ")
-  keep <- vapply(text, strict_topic_match, logical(1))
+  keep <- vapply(text, topic_match, logical(1), settings = settings)
   all <- all[keep, , drop = FALSE]
   all <- filter_publication_year(all, year_range)
   if (nrow(all) > target) all <- utils::head(all, target)

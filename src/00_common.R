@@ -51,6 +51,24 @@ TABLE_COLUMN_LABELS <- c(
   sport = "Вид спорта",
   effect_allele = "Эффектный аллель и связь с исходом",
   data_links = "Ссылки на данные",
+  disease = "Заболевание",
+  disease_subtype = "Подтип заболевания",
+  disease_stage = "Стадия заболевания",
+  cell_line = "Клеточная линия",
+  cell_type = "Тип клеток",
+  tissue = "Ткань / орган",
+  organism = "Организм",
+  mirna = "МикроРНК (miRNA)",
+  lncrna = "Длинная некодирующая РНК",
+  circrna = "Кольцевая РНК",
+  target_gene = "Ген-мишень РНК",
+  expression_change = "Изменение экспрессии",
+  intervention = "Воздействие / препарат",
+  dose = "Доза / концентрация",
+  exposure_duration = "Длительность воздействия",
+  control_group = "Контрольная группа",
+  assay_method = "Метод эксперимента",
+  experimental_model = "Экспериментальная модель",
   article_id = "ID объединённой статьи",
   text_source = "Основание извлечения",
   missing_fields = "Поля без подтверждения",
@@ -73,8 +91,65 @@ TABLE_COLUMN_PRESETS <- list(
     "multipletest", "power", "data_avail", "extraction_confidence",
     "extraction_evidence"
   ),
+  diseases = c("title", "year", "doi", "disease", "disease_subtype", "disease_stage", "tissue", "sample_size", "pub_type", "intervention", "results", "extraction_confidence"),
+  cells = c("title", "year", "doi", "cell_line", "cell_type", "tissue", "organism", "experimental_model", "intervention", "dose", "exposure_duration", "control_group", "assay_method", "results"),
+  rna = c("title", "year", "doi", "disease", "cell_line", "mirna", "target_gene", "expression_change", "lncrna", "circrna", "assay_method", "results", "extraction_confidence"),
+  general = c("title", "authors", "year", "journal", "doi", "abstract", "pub_type", "results", "extraction_confidence"),
   all = names(TABLE_COLUMN_LABELS)
 )
+
+TABLE_COLUMN_GROUPS <- list(
+  "Публикация" = c("title", "authors", "year", "journal", "doi", "pmid", "url", "abstract", "publication_type", "language", "mesh"),
+  "Заболевания" = c("disease", "disease_subtype", "disease_stage"),
+  "Клетки и модели" = c("cell_line", "cell_type", "tissue", "organism", "experimental_model"),
+  "РНК" = c("mirna", "lncrna", "circrna", "target_gene", "expression_change"),
+  "Гены и SNP" = c("gene", "snp", "inherit_model", "allele_freq", "hwe", "effect_allele"),
+  "Выборка и спорт" = c("sample_type", "ethnicity", "sample_size", "sample_groups", "sex", "age", "sport", "study_period", "pa_level"),
+  "Эксперимент и результаты" = c("pub_type", "intervention", "dose", "exposure_duration", "control_group", "assay_method", "phenotype", "measure_method", "covariates", "results", "effect_dir", "effect_size", "p_adj", "gene_env", "multipletest", "power"),
+  "Проверка и данные" = c("extraction_confidence", "extraction_evidence", "text_source", "missing_fields", "evidence_profile", "evidence_reasons", "data_avail", "data_links"),
+  "Источники и доступ" = c("source", "source_id", "article_id", "retrieval_method", "fulltext_url", "is_open_access")
+)
+
+RESEARCH_PROFILES <- list(
+  sports = list(label = "Спортивная генетика", preset = "core"),
+  diseases = list(label = "Заболевания", preset = "diseases",
+    query = '("breast cancer" OR "lung cancer" OR diabetes) AND (biomarker OR treatment OR mechanism)'),
+  cells = list(label = "Клеточные исследования", preset = "cells",
+    query = '("cell line" OR "cell culture" OR organoid) AND (treatment OR expression OR proliferation)'),
+  rna = list(label = "МикроРНК", preset = "rna",
+    query = '(microRNA OR miRNA OR lncRNA OR circRNA) AND (disease OR cancer OR "cell line")'),
+  general = list(label = "Свободный запрос", preset = "general", query = "")
+)
+
+research_profile <- function(settings = list()) {
+  profile <- settings$research_profile %||% "sports"
+  if (length(profile) != 1L || !profile %in% names(RESEARCH_PROFILES)) stop("Неизвестная тема поиска.")
+  profile
+}
+
+profile_queries <- function(profile = "sports", settings = list()) {
+  if (!profile %in% names(RESEARCH_PROFILES)) stop("Неизвестная тема поиска.")
+  if (profile == "sports") return(setNames(lapply(c("pubmed", "sciencedirect", "openalex"), read_query_for, settings = settings), c("pubmed", "sciencedirect", "openalex")))
+  query <- RESEARCH_PROFILES[[profile]]$query
+  list(pubmed = query, sciencedirect = query, openalex = query)
+}
+
+topic_match <- function(text, settings = list()) {
+  # Non-sports research must not be discarded by the legacy genetics AND sport filter.
+  if (research_profile(settings) != "sports" || identical(settings$topic_filter, FALSE)) return(TRUE)
+  strict_topic_match(text)
+}
+
+valid_table_columns <- function(columns, fallback = TABLE_COLUMN_PRESETS$core) {
+  columns <- unique(as.character(unlist(columns, use.names = FALSE)))
+  columns <- columns[!is.na(columns) & columns %in% names(TABLE_COLUMN_LABELS)]
+  if (length(columns)) columns else fallback
+}
+
+table_preferences <- function(value = list()) {
+  if (!is.list(value)) value <- list()
+  list(columns = valid_table_columns(value$columns))
+}
 
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
@@ -206,7 +281,7 @@ safe_expandable_cell <- function(value, preview, class_name) {
   )
 }
 
-prepare_table_display <- function(df) {
+prepare_table_display <- function(df, links_from = df) {
   df <- as.data.frame(df, stringsAsFactors = FALSE)
   if (nrow(df) == 0) return(list(data = df, link_columns = integer(0)))
 
@@ -215,7 +290,9 @@ prepare_table_display <- function(df) {
   }
   destinations <- mapply(
     article_destination,
-    values("url"), values("doi"), values("pmid"),
+    if ("url" %in% names(links_from)) links_from$url else values("url"),
+    if ("doi" %in% names(links_from)) links_from$doi else values("doi"),
+    if ("pmid" %in% names(links_from)) links_from$pmid else values("pmid"),
     USE.NAMES = FALSE
   )
   link_names <- character(0)
@@ -239,6 +316,15 @@ prepare_table_display <- function(df) {
       USE.NAMES = FALSE
     )
     link_names <- c(link_names, "abstract")
+  }
+
+  for (field in setdiff(names(df), c("title", "authors", "abstract", "url", "fulltext_url", "doi", "pmid"))) {
+    original <- values(field)
+    if (!any(nchar(original) > 190L, na.rm = TRUE)) next
+    df[[field]] <- mapply(safe_expandable_cell, original,
+      vapply(original, truncate_display_text, character(1), max_chars = 190L),
+      MoreArgs = list(class_name = "expandable-cell-detail"), USE.NAMES = FALSE)
+    link_names <- c(link_names, field)
   }
 
   if ("title" %in% names(df)) {

@@ -1,4 +1,6 @@
 {
+  "research_profile": "sports",
+  "topic_filter": true,
   "query_files": {
     "pubmed": "config/query.txt",
     "sciencedirect": "config/query_sciencedirect.txt",

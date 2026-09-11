@@ -542,8 +542,9 @@ enrich_final_table <- function(df, pmc_df = pmc_empty_df(), open_fulltext_df = o
   for (i in seq_len(nrow(df))) {
     text_source <- "abstract"
     blocks <- c(
+      "[[SECTION: Title]]", df$title[i],
       "[[SECTION: Metadata]]",
-      normalize_space(paste(df$title[i], df$publication_type[i], df$mesh[i], sep = ". ")),
+      normalize_space(paste(df$publication_type[i], df$mesh[i], sep = ". ")),
       "[[SECTION: Abstract]]",
       df$abstract[i]
     )

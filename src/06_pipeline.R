@@ -9,11 +9,7 @@ load_project_settings <- function(path = file.path(parser_root(), "config", "set
 }
 
 pipeline_queries <- function(settings) {
-  list(
-    pubmed = read_query_for("pubmed", settings),
-    sciencedirect = read_query_for("sciencedirect", settings),
-    openalex = read_query_for("openalex", settings)
-  )
+  profile_queries(research_profile(settings), settings)
 }
 
 pipeline_report <- function(final, sources, queries, started_at, settings = list()) {
@@ -42,6 +38,9 @@ pipeline_report <- function(final, sources, queries, started_at, settings = list
     sources = source_info,
     filled_fields = filled,
     queries = queries,
+    research_profile = research_profile(settings),
+    topic_filter = research_profile(settings) == "sports" && !identical(settings$topic_filter, FALSE),
+    openalex_scope = settings$openalex$scope %||% if (research_profile(settings) == "sports") "russian" else "global",
     limits = lapply(settings[c("pubmed", "sciencedirect", "openalex", "pmc", "fulltext")], function(x) x[intersect(names(x), c("enabled", "max_records", "max_open_records", "batch_size", "candidate_multiplier", "mode"))]),
     text_sources = as.list(table(final$text_source)),
     assessment_method = EVIDENCE_METHOD_VERSION,

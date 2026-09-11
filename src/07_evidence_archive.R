@@ -3,6 +3,20 @@
 EVIDENCE_METHOD_VERSION <- "sportgen-triage-1"
 REVIEWABLE_COLS <- c("gene", "snp", ENRICH_COLS)
 
+subset_research_rows <- function(df, rows) {
+  extras <- attributes(df)[setdiff(names(attributes(df)), c("names", "row.names", "class"))]
+  result <- df[rows, , drop = FALSE]
+  for (name in names(extras)) attr(result, name) <- extras[[name]]
+  ids <- result$article_id
+  a <- attr(result, "associations") %||% empty_associations()
+  attr(result, "associations") <- a[a$article_id %in% ids, , drop = FALSE]
+  documents <- attr(result, "documents") %||% list()
+  attr(result, "documents") <- documents[intersect(ids, names(documents))]
+  log <- attr(result, "review_log") %||% list()
+  attr(result, "review_log") <- Filter(function(x) as.character(unlist(x$article_id)) %in% ids, log)
+  result
+}
+
 assess_evidence <- function(df) {
   if (!nrow(df)) {
     df$evidence_profile <- character()
@@ -54,7 +68,8 @@ bundle_object <- function(df) {
        created_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
        articles = as.list(df), associations = attr(df, "associations") %||% empty_associations(),
        documents = attr(df, "documents") %||% list(), report = attr(df, "report") %||% list(),
-       review_log = attr(df, "review_log") %||% list())
+       review_log = attr(df, "review_log") %||% list(),
+       table_settings = table_preferences(attr(df, "table_settings") %||% list()))
 }
 
 write_research_archive <- function(df, path) {
@@ -94,6 +109,7 @@ read_research_archive <- function(path) {
   attr(df, "documents") <- documents
   attr(df, "report") <- obj$report %||% list()
   attr(df, "review_log") <- obj$review_log %||% list()
+  attr(df, "table_settings") <- table_preferences(obj$table_settings %||% list())
   df
 }
 

@@ -2,7 +2,7 @@
 script_arg <- grep('^--file=', commandArgs(FALSE), value=TRUE)
 ROOT <- normalizePath(file.path(dirname(sub('^--file=', '', script_arg[1])), '..'))
 options(article_parser.root=ROOT)
-for (name in c('00_common.R','01_pubmed.R','02_sciencedirect.R','03_openalex.R','03_crossref.R','04_merge_export.R','05_pmc_fulltext.R','05b_extraction.R','05c_documents.R','06_pipeline.R','07_evidence_archive.R')) source(file.path(ROOT,'src',name))
+for (name in c('00_common.R','01_pubmed.R','02_sciencedirect.R','03_openalex.R','03_crossref.R','04_merge_export.R','05_pmc_fulltext.R','05b_extraction.R','05c_documents.R','05d_biomedical.R','06_pipeline.R','07_evidence_archive.R')) source(file.path(ROOT,'src',name))
 corpus <- jsonlite::read_json(file.path(ROOT,'tests/fixtures/real/pubmed_30.json'), simplifyVector=FALSE)
 rows <- list()
 for (item in corpus$records) {

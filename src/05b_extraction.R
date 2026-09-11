@@ -148,7 +148,7 @@ extract_associations <- function(txt, article_id = "", symbols = character(), ti
   do.call(rbind, rows)
 }
 
-extract_detail_fields <- function(txt) {
+extract_sport_detail_fields <- function(txt) {
   txt <- if (is.na(txt)) "" else txt
   out <- extract_legacy_fields(txt)
   for (name in EXTRA_DETAIL_COLS) out[[name]] <- ""

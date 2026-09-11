@@ -56,10 +56,15 @@ crossref_request <- function(url, config, retries = 2L) {
   }
   response <- NULL
   for (attempt in seq_len(retries + 1L)) {
-    response <- httr::GET(
+    response <- tryCatch(httr::GET(
       url, httr::timeout(as.numeric(config$timeout_sec %||% 20)), httr::accept_json(),
       httr::user_agent(paste0("SportGenParser/1.0", if (nzchar(mailto)) paste0(" (mailto:", mailto, ")") else ""))
-    )
+    ), error = function(e) NULL)
+    if (is.null(response)) {
+      if (attempt <= retries) { Sys.sleep(2^attempt); next }
+      warning("Crossref: соединение недоступно; сохранены исходные метаданные.", call. = FALSE)
+      return(NULL)
+    }
     if (!response$status_code %in% c(429, 500, 502, 503, 504) || attempt > retries) break
     Sys.sleep(min(retry_after_seconds(response, 2^attempt), 30))
   }
@@ -76,7 +81,7 @@ crossref_by_doi <- function(doi, config = list()) {
   url <- paste0("https://api.crossref.org/works/", utils::URLencode(doi, reserved = TRUE))
   response <- crossref_request(url, config)
   record <- NULL
-  if (response$status_code == 200L) {
+  if (!is.null(response) && response$status_code == 200L) {
     parsed <- tryCatch(jsonlite::fromJSON(
       httr::content(response, as = "text", encoding = "UTF-8"), simplifyVector = FALSE
     ), error = function(e) NULL)
@@ -94,7 +99,7 @@ crossref_by_title <- function(title, year = "", config = list()) {
                  select = "DOI,title,author,container-title,published-print,published-online,published,issued,created,abstract,URL,type,publisher,member")
   )
   response <- crossref_request(url, config)
-  if (response$status_code != 200L) return(NULL)
+  if (is.null(response) || response$status_code != 200L) return(NULL)
   parsed <- tryCatch(jsonlite::fromJSON(
     httr::content(response, as = "text", encoding = "UTF-8"), simplifyVector = FALSE
   ), error = function(e) NULL)

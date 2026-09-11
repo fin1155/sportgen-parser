@@ -134,7 +134,7 @@ load_pubmed <- function(query = NULL, settings = NULL) {
     page <- filter_publication_year(page, year_range)
     if (strict_filter && nrow(page) > 0) {
       text <- paste(page$title, page$abstract, page$mesh, sep = " | ")
-      page <- page[vapply(text, strict_topic_match, logical(1)), , drop = FALSE]
+      page <- page[vapply(text, topic_match, logical(1), settings = settings), , drop = FALSE]
     }
     if (nrow(page) > 0) {
       pages[[length(pages) + 1L]] <- page

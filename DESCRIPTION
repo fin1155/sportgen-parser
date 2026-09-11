@@ -1,7 +1,7 @@
 Package: sportgenparser
 Type: Project
 Title: Sports Genetics Literature Parser
-Version: 1.0.0
+Version: 2.0.0
 Authors@R: person("Project", "Maintainer", email = "maintainer@example.invalid", role = c("aut", "cre"))
 Description: Collects and normalizes sports genetics literature metadata from
     PubMed, Elsevier APIs, and OpenAlex; supplements bibliographic metadata with

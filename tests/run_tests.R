@@ -12,6 +12,7 @@ source(file.path(ROOT, "src", "04_merge_export.R"))
 source(file.path(ROOT, "src", "05_pmc_fulltext.R"))
 source(file.path(ROOT, "src", "05b_extraction.R"))
 source(file.path(ROOT, "src", "05c_documents.R"))
+source(file.path(ROOT, "src", "05d_biomedical.R"))
 source(file.path(ROOT, "src", "06_pipeline.R"))
 source(file.path(ROOT, "src", "07_evidence_archive.R"))
 
@@ -294,65 +295,17 @@ check("Web sessions do not write shared result files",
       grepl("settings = settings, queries = queries, export = FALSE", app_text, fixed = TRUE))
 check("Results table uses client-side data and cannot time out on a DT Ajax request",
       grepl("}, server = FALSE)", app_text, fixed = TRUE))
-check("Query editor explains that changes are optional",
-      grepl("Запросы · необязательно", app_text, fixed = TRUE))
-check("Query editor can restore source defaults",
-      grepl("observeEvent(input$reset_queries", app_text, fixed = TRUE))
-year_ui_markers <- c('textInput("year_from"', 'textInput("year_to"',
-                     "Год публикации (необязательно)")
-check("Web interface exposes optional publication-year bounds",
-      all(vapply(year_ui_markers, function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
-check("Web search stores validated publication-year bounds in session settings",
-      grepl("settings$publication_year <- list", app_text, fixed = TRUE))
-column_ui_markers <- c(
-  'nav_panel("Столбцы"', 'actionButton("columns_core"',
-  'actionButton("columns_genetics"', 'actionButton("columns_all"', 'selectizeInput('
-)
-check("Web interface exposes the column customizer and presets",
-      all(vapply(column_ui_markers,
-                 function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
-check("Results table and both downloads use the selected columns",
-      grepl("write_research_workbook(result_data(), file, selected_columns())", app_text, fixed = TRUE) && grepl("readr::write_csv(visible_result_data()", app_text, fixed = TRUE))
-check("Column order can be changed by dragging selected fields",
-      grepl('plugins = list("remove_button", "drag_drop")', app_text, fixed = TRUE))
-check("Removing every field restores the core preset",
-      grepl("ignoreInit = TRUE, ignoreNULL = FALSE", app_text, fixed = TRUE))
-check("Results table renders safe one-click article links",
-      grepl("display <- prepare_table_display(df)", app_text, fixed = TRUE) &&
-        grepl("escape = escape_columns", app_text, fixed = TRUE) &&
-        grepl("Нажмите на название статьи", app_text, fixed = TRUE))
-check("Long table values wrap inside their cells without fixed-column overlays",
-      grepl("table.dataTable tbody td { max-width:360px", app_text, fixed = TRUE) &&
-        grepl("white-space:normal!important", app_text, fixed = TRUE) &&
-        !grepl('extensions = c("Scroller", "FixedColumns")', app_text, fixed = TRUE) &&
-        !grepl("fixedColumns = list", app_text, fixed = TRUE))
-check("Authors and abstracts expand on demand in the results table",
-      grepl(".cell-expand-button", app_text, fixed = TRUE) &&
-        grepl("Показать полностью", app_text, fixed = TRUE) &&
-        grepl("button.textContent = expanded ? 'Показать полностью' : 'Свернуть'", app_text, fixed = TRUE))
-check("Expandable text buttons do not select the entire result row",
-      grepl('selection = "none"', app_text, fixed = TRUE))
-check("Results workspace uses the available viewport width and height",
-      grepl(".app-shell { width:100%; max-width:none", app_text, fixed = TRUE) &&
-        grepl('scrollY = "65vh"', app_text, fixed = TRUE) &&
-        !grepl('extensions = "Scroller"', app_text, fixed = TRUE))
-check("Column preset notifications replace each other instead of stacking",
-      grepl('id = "column-preset"', app_text, fixed = TRUE))
-responsive_ui_markers <- c(
-  ".workspace-row { display:grid",
-  ".year-range .shiny-input-container,.year-range .form-control { width:100%!important",
-  "@media(max-width:1100px)",
-  ".workspace-row{grid-template-columns:1fr}",
-  "html,body { max-width:100%; overflow-x:hidden; }"
-)
-check("Web layout prevents fixed-width inputs and columns from overflowing",
-      all(vapply(responsive_ui_markers,
-                 function(marker) grepl(marker, app_text, fixed = TRUE), logical(1))))
+# UI interactions, layout and downloads are tested in server_flow.R and browser_flow.py.
+check_equal("Every column belongs to exactly one checkbox group", sort(unlist(TABLE_COLUMN_GROUPS, use.names = FALSE)), sort(names(TABLE_COLUMN_LABELS)))
+check("All presets contain only known columns", all(unlist(TABLE_COLUMN_PRESETS, use.names = FALSE) %in% names(TABLE_COLUMN_LABELS)))
+check_equal("Invalid column preferences cannot add fields to exports", valid_table_columns(c("title", "unknown", "title", "cell_line")), c("title", "cell_line"))
+check_equal("An empty applied selection has a nonempty fallback", valid_table_columns(character()), TABLE_COLUMN_PRESETS$core)
 manifest <- jsonlite::read_json(file.path(ROOT, "manifest.json"), simplifyVector = FALSE)
 check("Connect Cloud manifest targets a supported Shiny runtime",
       identical(manifest$platform, "4.6.0") && identical(manifest$metadata$appmode, "shiny"))
 
 source(file.path(ROOT, "tests", "regression_tz.R"))
+source(file.path(ROOT, "tests", "regression_flexible.R"))
 
 cat("\nRESULT", passed, "passed;", failed, "failed\n")
 if (failed > 0) quit(status = 1)

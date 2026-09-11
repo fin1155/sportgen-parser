@@ -2650,10 +2650,13 @@
   },
   "files": {
     "app.R": {
-      "checksum": "758ddcc1323b1a8b48cae44c07b5a8bf"
+      "checksum": "d96c8ba70fadeba896504fd751cb299e"
     },
     "config/hgnc_symbols.txt": {
       "checksum": "db5abe75c945afd6ed60884188610caa"
+    },
+    "config/query.txt": {
+      "checksum": "b209b5b3a8afb5cf6201fd9960570cd7"
     },
     "config/query_openalex.txt": {
       "checksum": "9d10c49daa53bfb7559e17c69c69a81c"
@@ -2661,11 +2664,8 @@
     "config/query_sciencedirect.txt": {
       "checksum": "01675782e30d4819463f22e4f438b179"
     },
-    "config/query.txt": {
-      "checksum": "b209b5b3a8afb5cf6201fd9960570cd7"
-    },
     "config/settings.json": {
-      "checksum": "cdda6510106db3b13e66ff1e7d059ed9"
+      "checksum": "117a4ea0fc2dd0b814f695e7b0ad758d"
     },
     "data/sciencedirect_browser.json": {
       "checksum": "8d87905b258bc30ed02d96e225d8187f"
@@ -2674,37 +2674,49 @@
       "checksum": "f994baacbae4836869f63d1bf0c4a75f"
     },
     "src/00_common.R": {
-      "checksum": "660a4498c4cdf2ff39f6e1c2fac6d2c1"
+      "checksum": "d3b70d0c481283cdc6a1c373a3626a1f"
     },
     "src/01_pubmed.R": {
-      "checksum": "91840c7560a15d232280c45f82714a20"
+      "checksum": "b3ac4ff97a5b745fc2b85aab75662c80"
     },
     "src/02_sciencedirect.R": {
       "checksum": "ffad6d121ddcf93adc5c05192309eaec"
     },
     "src/03_crossref.R": {
-      "checksum": "2c99561f8c3702590f2fc3c9b41dcded"
+      "checksum": "27d2d8cc9a012802c8b4e83d0278d5d6"
     },
     "src/03_openalex.R": {
-      "checksum": "9508576f9a91e913eefd46f07310707e"
+      "checksum": "4d6db55529403ad38b8b5a6b8200d4d6"
     },
     "src/04_merge_export.R": {
       "checksum": "fed8d95bacf213765897e9eac7d49569"
     },
     "src/05_pmc_fulltext.R": {
-      "checksum": "3818be1c3452836c670eae0662fc74da"
+      "checksum": "55f65880316752cd8b679c8ea34301b8"
     },
-    "src/06_pipeline.R": {
-      "checksum": "72efb04138a8c9b577520453dfdf5ee8"
+    "src/05b_extraction.R": {
+      "checksum": "d01b2ba68f54ce0e87f4ecb5b87deb21"
     },
     "src/05c_documents.R": {
       "checksum": "8b2cabcca72ca1047dd48f4e63a8e4c8"
     },
-    "src/05b_extraction.R": {
-      "checksum": "d1d74291f34da119a172a46e95e768f1"
+    "src/05d_biomedical.R": {
+      "checksum": "61328eb5ca23e1a8e8219a69023202ec"
+    },
+    "src/06_pipeline.R": {
+      "checksum": "c556ed93898972c15a276c02bde94181"
     },
     "src/07_evidence_archive.R": {
-      "checksum": "575ecea689cbaf5fb670b5ea04a9c9d3"
+      "checksum": "0ac9649ee8eec28849e5212589d81623"
+    },
+    "src/08_ui.R": {
+      "checksum": "427764b09d3bc0c7c9e8408acc88bcad"
+    },
+    "www/table-builder.js": {
+      "checksum": "61a7ff03958c52d7b05b51c758bb518a"
+    },
+    "www/workspace.css": {
+      "checksum": "7faa8240d194b0bbd3ab868c6d5a0900"
     }
   },
   "users": null

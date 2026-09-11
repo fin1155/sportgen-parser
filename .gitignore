@@ -4,6 +4,7 @@
 .Rproj.user/
 .Renviron
 .env
+.impeccable/review/
 renv/library/
 renv/staging/
 data/cache/
